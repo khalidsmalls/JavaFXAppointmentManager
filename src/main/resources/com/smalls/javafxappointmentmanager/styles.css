@@ -1,0 +1,14 @@
+.root {
+    -fx-background-color: "wheat";
+    -fx-font-family: "Verdana";
+}
+
+.main{}
+
+.main-header{}
+
+.table-header{}
+
+.btn{}
+
+.input-label{}
