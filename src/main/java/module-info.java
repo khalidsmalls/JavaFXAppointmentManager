@@ -1,6 +1,7 @@
 module com.smalls.javafxappointmentmanager {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.sql;
 
 
     opens com.smalls.javafxappointmentmanager to javafx.fxml;
