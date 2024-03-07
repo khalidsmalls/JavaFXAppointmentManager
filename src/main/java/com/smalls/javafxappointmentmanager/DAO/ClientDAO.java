@@ -1,19 +1,40 @@
 package com.smalls.javafxappointmentmanager.DAO;
 
+import com.smalls.javafxappointmentmanager.MainApplication;
 import com.smalls.javafxappointmentmanager.model.Client;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ClientDAO {
 
-    private static ObservableMap<Integer, Client> CLIENTS;
+    private static ClientDAO instance;
 
-    public static ObservableMap<Integer, Client> getAll() throws SQLException {
-        CLIENTS = FXCollections.observableHashMap();
+    private ObservableMap<Integer, Client> clients;
+
+    private final Connection conn;
+
+    public static ClientDAO getInstance() {
+        if (instance == null) {
+            instance = new ClientDAO();
+        }
+        return instance;
+    }
+
+    private ClientDAO() {
+        this.conn = MainApplication.getConnection();
+    }
+
+    public ObservableMap<Integer, Client> getAll() throws SQLException {
+        if (clients == null) {
+            clients = FXCollections.observableHashMap();
+        } else {
+            clients.clear();
+        }
         ResultSet resultSet;
         String query = "SELECT " +
                 "client_id, " +
@@ -24,28 +45,28 @@ public class ClientDAO {
                 "division_id " +
                 "FROM clients";
 
-        try (PreparedStatement stmt = DBConn.conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
             resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 int id = resultSet.getInt("client_id");
-                CLIENTS.put(
+                clients.put(
                         id,
                         new Client(
                                 id,
                                 resultSet.getString("name"),
                                 resultSet.getString("address"),
-                                resultSet.getString("postalCode"),
+                                resultSet.getString("postal_code"),
                                 resultSet.getString("phone"),
-                                resultSet.getInt("divisionId")
+                                resultSet.getInt("division_id")
                         )
                 );
             }
         }
 
-        return CLIENTS;
+        return clients;
     }
 
-    public static void save(Client client) throws SQLException {
+    public void save(Client client) throws SQLException {
         String name = client.getName();
         String address = client.getAddress();
         String postalCode = client.getPostalCode();
@@ -57,7 +78,10 @@ public class ClientDAO {
                 "(name, address, postal_code, phone, division_id) " +
                 "VALUES (?,?,?,?,?)";
 
-        try (PreparedStatement stmt = DBConn.conn.prepareStatement(update, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = conn.prepareStatement(
+                update,
+                PreparedStatement.RETURN_GENERATED_KEYS)
+        ) {
             stmt.setString(1, name);
             stmt.setString(2, address);
             stmt.setString(3, postalCode);
@@ -69,7 +93,7 @@ public class ClientDAO {
                 resultSet.next();
                 nextId = resultSet.getInt(1);
 
-                CLIENTS.put(
+                clients.put(
                         nextId,
                         new Client(
                                 nextId,
@@ -84,12 +108,12 @@ public class ClientDAO {
         }
     }
 
-    public static void update(int clientId, Client client) throws SQLException {
+    public void update(int clientId, Client client) throws SQLException {
         String update = "UPDATE clients " +
                 "SET name=?, address=?, postal_code=?, phone=?, division_id=? " +
                 "WHERE client_id=?";
 
-        try (PreparedStatement stmt = DBConn.conn.prepareStatement(update)) {
+        try (PreparedStatement stmt = conn.prepareStatement(update)) {
             stmt.setString(1, client.getName());
             stmt.setString(2, client.getAddress());
             stmt.setString(3, client.getPostalCode());
@@ -98,19 +122,19 @@ public class ClientDAO {
             stmt.setInt(6, clientId);
 
             if (stmt.executeUpdate() == 1) {
-                CLIENTS.put(clientId, client);
+                clients.put(clientId, client);
             }
         }
     }
 
-    public static void delete(Client client) throws SQLException {
-        String update = "DELETE FROM clients WHERE id=?";
+    public void delete(Client client) throws SQLException {
+        String update = "DELETE FROM clients WHERE client_id=?";
 
-        try (PreparedStatement stmt = DBConn.conn.prepareStatement(update)) {
+        try (PreparedStatement stmt = conn.prepareStatement(update)) {
             stmt.setInt(1, client.getId());
 
             if (stmt.executeUpdate() == 1) {
-                CLIENTS.remove(client.getId());
+                clients.remove(client.getId());
             }
         }
     }
