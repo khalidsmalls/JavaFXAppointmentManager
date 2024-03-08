@@ -1,6 +1,6 @@
 package com.smalls.javafxappointmentmanager.model;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 
 public class Appointment {
 
@@ -12,9 +12,9 @@ public class Appointment {
 
     private final String type;
 
-    private final ZonedDateTime start;
+    private final OffsetDateTime start;
 
-    private final ZonedDateTime end;
+    private final OffsetDateTime end;
 
     private final int clientId;
 
@@ -27,8 +27,8 @@ public class Appointment {
             String description,
             String location,
             String type,
-            ZonedDateTime start,
-            ZonedDateTime end,
+            OffsetDateTime start,
+            OffsetDateTime end,
             int clientId,
             int userId,
             int contactId
@@ -60,11 +60,11 @@ public class Appointment {
         return type;
     }
 
-    public ZonedDateTime getStart() {
+    public OffsetDateTime getStart() {
         return start;
     }
 
-    public ZonedDateTime getEnd() {
+    public OffsetDateTime getEnd() {
         return end;
     }
 
