@@ -21,7 +21,9 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("view/login-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(
+                MainApplication.class.getResource("view/login-view.fxml")
+        );
         Scene scene = new Scene(fxmlLoader.load(), 700, 500);
 
         URL styleSheet = MainApplication.class.getResource("styles.css");
