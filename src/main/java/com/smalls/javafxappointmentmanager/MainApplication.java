@@ -1,5 +1,6 @@
 package com.smalls.javafxappointmentmanager;
 
+import com.smalls.javafxappointmentmanager.utils.CustomLogger;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -12,6 +13,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.logging.Level;
 
 public class MainApplication extends Application {
 
@@ -34,6 +36,7 @@ public class MainApplication extends Application {
 
     @Override
     public void init() throws Exception {
+        CustomLogger.initialize("/logfile.log");
         try {
             Properties properties = new Properties();
             InputStream input = MainApplication.class
@@ -50,7 +53,11 @@ public class MainApplication extends Application {
                     properties.getProperty("dbPassword")
             );
         } catch (SQLException e) {
-            //log the exception or something
+            CustomLogger.logMessage(
+                    Level.SEVERE,
+                    "Database connection error: " + e
+            );
+            throw e;
         }
     }
 
