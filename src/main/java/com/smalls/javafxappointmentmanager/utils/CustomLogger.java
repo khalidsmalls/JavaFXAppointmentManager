@@ -1,6 +1,5 @@
 package com.smalls.javafxappointmentmanager.utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.logging.*;
 
@@ -12,9 +11,9 @@ public class CustomLogger {
         try {
             FileHandler fh = new FileHandler(logFile, true);
             log.addHandler(fh);
-            fh.setFormatter(new LogFormatter);
+            fh.setFormatter(new LogFormatter());
         } catch (IOException e) {
-            throw new RuntimeException("Error initializing logger", e);
+            throw new RuntimeException("Error initializing logger: " + e, e);
         }
     }
 

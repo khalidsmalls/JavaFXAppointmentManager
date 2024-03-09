@@ -22,7 +22,7 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("view/login-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        Scene scene = new Scene(fxmlLoader.load(), 700, 500);
 
         URL styleSheet = MainApplication.class.getResource("styles.css");
         if (styleSheet != null) {
@@ -36,7 +36,7 @@ public class MainApplication extends Application {
 
     @Override
     public void init() throws Exception {
-        CustomLogger.initialize("/logfile.log");
+        CustomLogger.initialize("logfile.log");
         try {
             Properties properties = new Properties();
             InputStream input = MainApplication.class
