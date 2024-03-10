@@ -1,7 +1,6 @@
 package com.smalls.javafxappointmentmanager.controller;
 
 import com.smalls.javafxappointmentmanager.DAO.UserDAO;
-import com.smalls.javafxappointmentmanager.MainApplication;
 import com.smalls.javafxappointmentmanager.model.User;
 import com.smalls.javafxappointmentmanager.utils.CustomLogger;
 import javafx.event.ActionEvent;
@@ -20,7 +19,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -48,6 +46,7 @@ public class LoginController implements Initializable {
     private void onSignIn() {
         String username = usernameInput.getText().trim();
         String password = passwordInput.getText().trim();
+        String className = getClass().getName();
 
         try {
             User user = UserDAO.getInstance()
@@ -57,7 +56,8 @@ public class LoginController implements Initializable {
                     );
             if (user != null) {
                 //successful login
-                CustomLogger.logMessage(
+                CustomLogger.log(
+                        className,
                         Level.INFO,
                         String.format(
                                 "User \"%s\" successful login",
@@ -82,7 +82,8 @@ public class LoginController implements Initializable {
 
             } else {
                 //failed login
-                CustomLogger.logMessage(
+                CustomLogger.log(
+                        className,
                         Level.WARNING,
                         String.format(
                                 "User \"%s\" failed login",
@@ -96,13 +97,15 @@ public class LoginController implements Initializable {
             }
 
         } catch (SQLException | IOException e) {
-            CustomLogger.logMessage(
+            CustomLogger.log(
+                    className,
                     Level.SEVERE,
                     String.format(
                             "There was an error loading the resource: %s",
-                            e
+                            e.getMessage()
                     )
             );
+            //TODO handle exception
             throw new RuntimeException(e);
         }
     }

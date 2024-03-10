@@ -55,10 +55,12 @@ public class MainApplication extends Application {
                     properties.getProperty("dbPassword")
             );
         } catch (SQLException e) {
-            CustomLogger.logMessage(
+            CustomLogger.log(
+                    getClass().getName(),
                     Level.SEVERE,
-                    "Database connection error: " + e
+                    "Database connection error: " + e.getMessage()
             );
+            //TODO why throw e? where you throwing e?
             throw e;
         }
     }
@@ -68,6 +70,7 @@ public class MainApplication extends Application {
         if (conn != null && !conn.isClosed()) {
             conn.close();
         }
+        CustomLogger.close();
     }
 
     public static Connection getConnection() {
