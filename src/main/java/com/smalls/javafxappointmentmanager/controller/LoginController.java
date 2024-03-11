@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Optional;
@@ -36,10 +35,12 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        dateTimeLabel.setText(
-                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                        .format(LocalDateTime.now()) + " " + ZoneId.systemDefault()
-        );
+
+        String nowDateTime = DateTimeFormatter
+                .ofLocalizedDateTime(FormatStyle.MEDIUM)
+                .format(LocalDateTime.now());
+
+        dateTimeLabel.setText(nowDateTime);
     }
 
     @FXML
@@ -47,49 +48,23 @@ public class LoginController implements Initializable {
         String username = usernameInput.getText().trim();
         String password = passwordInput.getText().trim();
         String className = getClass().getName();
+        UserDAO userDAO = UserDAO.getInstance();
 
         try {
-            User user = UserDAO.getInstance()
-                    .authenticateUser(
-                            username,
-                            password
-                    );
-            if (user != null) {
-                //successful login
-                CustomLogger.log(
-                        className,
-                        Level.INFO,
-                        String.format(
-                                "User \"%s\" successful login",
-                                username
-                        )
+            User user = userDAO.authenticateUser(username, password);
+            String logMsg;
+            if (user != null) { //successful login
+                logMsg = String.format(
+                        "User \"%s\" successful login",
+                        username
                 );
+                CustomLogger.log(className, Level.INFO, logMsg);
 
-                FXMLLoader loader = new FXMLLoader();
-                URL styleSheet = getClass().getResource("styles.css");
-                URL dashboardView = getClass().getResource("view/dashboard-view.fxml");
-                loader.setLocation(dashboardView);
-                //loader.setControllerFactory(c -> new DashboardController(user));
-                Parent root = loader.load();
-                Scene scene = new Scene(root);
-                if (styleSheet != null) {
-                    scene.getStylesheets().add(styleSheet.toExternalForm());
-                }
-                Stage stage = new Stage();
-                stage.setTitle("Dashboard");
-                stage.setScene(scene);
-                stage.show();
-
-            } else {
-                //failed login
-                CustomLogger.log(
-                        className,
-                        Level.WARNING,
-                        String.format(
-                                "User \"%s\" failed login",
-                                username
-                        )
-                );
+                loadDashboardView();
+                //TODO close login view
+            } else { //failed login
+                logMsg = String.format("User \"%s\" failed login", username);
+                CustomLogger.log(className, Level.WARNING, logMsg);
 
                 new Alert(Alert.AlertType.ERROR,
                         "Login Failed: Invalid Credentials")
@@ -97,15 +72,12 @@ public class LoginController implements Initializable {
             }
 
         } catch (SQLException | IOException e) {
-            CustomLogger.log(
-                    className,
-                    Level.SEVERE,
-                    String.format(
-                            "There was an error loading the resource: %s",
-                            e.getMessage()
-                    )
+            String logMsg = String.format(
+                    "There was an error loading the resource: %s",
+                    e.getMessage()
             );
-            //TODO handle exception
+            CustomLogger.log(className, Level.SEVERE, logMsg);
+            //TODO how to best handle the exception?
             throw new RuntimeException(e);
         }
     }
@@ -121,5 +93,22 @@ public class LoginController implements Initializable {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             ((Stage) (((Button) e.getSource()).getScene().getWindow())).close();
         }
+    }
+
+    private void loadDashboardView() throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        URL styleSheet = getClass().getResource("styles.css");
+        URL dashboardView = getClass().getResource("view/dashboard-view.fxml");
+        loader.setLocation(dashboardView);
+        //loader.setControllerFactory(c -> new DashboardController(user));
+        Parent root = loader.load();
+        Scene scene = new Scene(root);
+        if (styleSheet != null) {
+            scene.getStylesheets().add(styleSheet.toExternalForm());
+        }
+        Stage stage = new Stage();
+        stage.setTitle("Dashboard");
+        stage.setScene(scene);
+        stage.show();
     }
 }
