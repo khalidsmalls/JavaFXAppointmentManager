@@ -60,7 +60,7 @@ public class LoginController implements Initializable {
                 );
                 CustomLogger.log(className, Level.INFO, logMsg);
 
-                loadDashboardView();
+                loadDashboardView(user);
                 //TODO close login view
             } else { //failed login
                 logMsg = String.format("User \"%s\" failed login", username);
@@ -95,13 +95,16 @@ public class LoginController implements Initializable {
         }
     }
 
-    private void loadDashboardView() throws IOException {
+    private void loadDashboardView(User user) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        URL styleSheet = getClass().getResource("styles.css");
-        URL dashboardView = getClass().getResource("view/dashboard-view.fxml");
+        URL styleSheet = getClass()
+                .getResource("/com/smalls/javafxappointmentmanager/styles.css");
+        URL dashboardView = getClass()
+                .getResource("/com/smalls/javafxappointmentmanager/view/dashboard-view.fxml");
         loader.setLocation(dashboardView);
-        //loader.setControllerFactory(c -> new DashboardController(user));
         Parent root = loader.load();
+        DashboardController controller = loader.getController();
+        controller.setUser(user);
         Scene scene = new Scene(root);
         if (styleSheet != null) {
             scene.getStylesheets().add(styleSheet.toExternalForm());
@@ -109,6 +112,8 @@ public class LoginController implements Initializable {
         Stage stage = new Stage();
         stage.setTitle("Dashboard");
         stage.setScene(scene);
+        stage.setMinHeight(775);
+        stage.setMinWidth(1300);
         stage.show();
     }
 }

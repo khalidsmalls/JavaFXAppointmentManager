@@ -2,6 +2,7 @@ package com.smalls.javafxappointmentmanager.DAO;
 
 import com.smalls.javafxappointmentmanager.MainApplication;
 import com.smalls.javafxappointmentmanager.model.AdministrativeDivision;
+import com.smalls.javafxappointmentmanager.model.Country;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -60,5 +61,22 @@ public class DivisionDAO {
             }
         }
         return divisions;
+    }
+
+    public AdministrativeDivision get(int id) throws SQLException {
+        String query = "SELECT name, country_id FROM administrative_divisions WHERE division_id=?";
+        ResultSet resultSet;
+        AdministrativeDivision division = null;
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                int country_id = resultSet.getInt("country_id");
+                division = new AdministrativeDivision(id, name, country_id);
+            }
+        }
+        return division;
     }
 }

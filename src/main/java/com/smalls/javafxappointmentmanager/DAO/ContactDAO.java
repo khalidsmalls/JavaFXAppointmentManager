@@ -50,4 +50,20 @@ public class ContactDAO {
         }
         return contacts;
     }
+
+    public Contact get(int id) throws SQLException {
+        String query = "SELECT name FROM contacts WHERE contact_id=?";
+        ResultSet resultSet;
+        Contact contact = null;
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                contact= new Contact(id, name);
+            }
+        }
+        return contact;
+    }
 }

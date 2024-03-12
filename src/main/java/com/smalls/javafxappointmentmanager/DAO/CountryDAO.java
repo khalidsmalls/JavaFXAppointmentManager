@@ -50,4 +50,20 @@ public class CountryDAO {
         }
         return countries;
     }
+
+    public Country get(int id) throws SQLException {
+        String query = "SELECT name FROM countries WHERE country_id=?";
+        ResultSet resultSet;
+        Country country = null;
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                String name = resultSet.getString("name");
+                country = new Country(id, name);
+            }
+        }
+        return country;
+    }
 }

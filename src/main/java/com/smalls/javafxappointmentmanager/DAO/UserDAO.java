@@ -36,7 +36,7 @@ public class UserDAO {
             users.clear();
         }
 
-        String query = "SELECT user_id, name, FROM users";
+        String query = "SELECT user_id, username, FROM users";
         ResultSet resultSet;
 
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -44,13 +44,29 @@ public class UserDAO {
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("user_id");
-                String name = resultSet.getString("name");
+                String name = resultSet.getString("username");
 
                 users.add(new User(id, name));
             }
         }
 
         return users;
+    }
+
+    public User get(int id) throws SQLException {
+        String query = "SELECT username FROM users WHERE user_id=?";
+        ResultSet resultSet;
+        User user = null;
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                String name = resultSet.getString("username");
+                user = new User(id, name);
+            }
+        }
+        return user;
     }
 
     public User authenticateUser(String username, String password) throws SQLException {

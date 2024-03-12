@@ -40,9 +40,9 @@ public class AppointmentDAO {
                 "appointment_type, " +
                 "start_time, " +
                 "end_time, " +
-                "clientId, " +
-                "userId, " +
-                "contactId " +
+                "client_id, " +
+                "user_id, " +
+                "contact_id " +
                 "FROM appointments";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             resultSet = stmt.executeQuery();
@@ -67,12 +67,12 @@ public class AppointmentDAO {
                                 id,
                                 resultSet.getString("description"),
                                 resultSet.getString("location"),
-                                resultSet.getString("type"),
+                                resultSet.getString("appointment_type"),
                                 startTz.toOffsetDateTime(),
                                 endTz.toOffsetDateTime(),
-                                resultSet.getInt("clientId"),
-                                resultSet.getInt("userId"),
-                                resultSet.getInt("contactId")
+                                resultSet.getInt("client_id"),
+                                resultSet.getInt("user_id"),
+                                resultSet.getInt("contact_id")
                         )
 
                 );
@@ -94,7 +94,7 @@ public class AppointmentDAO {
         int nextId;
 
         String update = "INSERT INTO appointments " +
-                "(description, location, type, start, end, clientId, userId, contactId) " +
+                "(description, location, type, start, end, client_id, user_id, contact_id) " +
                 "VALUES (?,?,?,?,?,?,?,?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(
