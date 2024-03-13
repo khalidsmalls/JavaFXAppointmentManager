@@ -188,7 +188,36 @@ public class DashboardController implements Initializable {
 
     @FXML
     private void onClientSearch() {
-        
+        String searchString = clientSearchInput.getText().trim();
+        ObservableList<Client> searchResult = FXCollections.observableArrayList();
+
+        //if search string is empty, show all clients
+        if (searchString.isEmpty()) {
+            clientTable.setItems(clientObservableList);
+            clientTable.setPlaceholder(new Text("There are currently no clients"));
+        } else {
+            clientTable.setItems(searchResult);
+            clientTable.setPlaceholder(new Text("Client not found"));
+            try {
+                //try to get the client by id
+                int id = Integer.parseInt(searchString);
+                Client c = clients.get(id);
+                if (c != null) {
+                    searchResult.add(c);
+                }
+                if (!searchResult.isEmpty()) {
+                    clientTable.getSelectionModel().select(c);
+                }
+            } catch (NumberFormatException e) {
+                //search string wasn't a number, so search by name
+                for (Client c : clients.values()) {
+                    if (c.getName().toLowerCase().contains(searchString.toLowerCase())) {
+                        searchResult.add(c);
+                    }
+                }
+            }
+        }
+
     }
 
     @FXML
