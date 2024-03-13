@@ -66,6 +66,34 @@ public class ClientDAO {
         return clients;
     }
 
+    public Client get(int id) throws SQLException {
+        String query = "SELECT name, " +
+                "address, " +
+                "postal_code, " +
+                "phone, " +
+                "division_id " +
+                "FROM clients " +
+                "WHERE client_id=?";
+        ResultSet resultSet;
+        Client client = null;
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, id);
+            resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                client = new Client(
+                        id,
+                        resultSet.getString("name"),
+                        resultSet.getString("address"),
+                        resultSet.getString("postal_code"),
+                        resultSet.getString("phone"),
+                        resultSet.getInt("division_id")
+                );
+            }
+        }
+        return client;
+    }
+
     public void save(Client client) throws SQLException {
         String name = client.getName();
         String address = client.getAddress();
