@@ -2,6 +2,7 @@ package com.smalls.javafxappointmentmanager.controller;
 
 import com.smalls.javafxappointmentmanager.DAO.*;
 import com.smalls.javafxappointmentmanager.model.*;
+import com.smalls.javafxappointmentmanager.utils.CustomLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -23,6 +24,7 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
+import java.util.logging.Level;
 
 
 public class DashboardController implements Initializable {
@@ -101,6 +103,7 @@ public class DashboardController implements Initializable {
 
     private User user;
 
+    //limit text input length to 50 characters
     private final UnaryOperator<TextFormatter.Change> lengthFilter = change -> {
         String newText = change.getControlNewText();
         if (newText.length() > 50) {
@@ -114,6 +117,45 @@ public class DashboardController implements Initializable {
 
     private final Comparator<Appointment> compareAppointmentsById = Comparator
             .comparingInt(Appointment::getId);
+
+    private final MapChangeListener<Integer, Client> clientMapChangeListener = change -> {
+        if (change.wasAdded()) {
+            Client update = change.getValueAdded();
+            clientObservableList.sort(compareClientsById);
+            int index = Collections.binarySearch(
+                    clientObservableList,
+                    update,
+                    compareClientsById
+            );
+            if (index >= 0) {
+                clientObservableList.set(index, update);
+                return;
+            }
+            clientObservableList.add(update);
+        } else {
+            clientObservableList.remove(change.getValueRemoved());
+        }
+
+    };
+
+    private final MapChangeListener<Integer, Appointment> apptMapChangeListener = change -> {
+        if (change.wasAdded()) {
+            Appointment update = change.getValueAdded();
+            appointmentObservableList.sort(compareAppointmentsById);
+            int index = Collections.binarySearch(
+                    appointmentObservableList,
+                    update,
+                    compareAppointmentsById
+            );
+            if (index >= 0) {
+                appointmentObservableList.set(index, update);
+                return;
+            }
+            appointmentObservableList.add(update);
+        } else {
+            appointmentObservableList.remove(change.getValueRemoved());
+        }
+    };
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -130,8 +172,15 @@ public class DashboardController implements Initializable {
             appointments.addListener(apptMapChangeListener);
             initClientTable();
             initApptTable();
-        } catch (SQLException e) {
-            //TODO: log exception, alert user
+        } catch (SQLException | RuntimeException e) {
+            new Alert(Alert.AlertType.ERROR,
+                    "There was an error loading the dashboard data"
+            ).showAndWait();
+            CustomLogger.log(
+                    getClass().getName(),
+                    Level.SEVERE,
+                    "error loading dashboard data: " + e.getMessage()
+            );
             throw new RuntimeException(e);
         }
 
@@ -139,6 +188,7 @@ public class DashboardController implements Initializable {
 
     @FXML
     private void onClientSearch() {
+        
     }
 
     @FXML
@@ -183,12 +233,13 @@ public class DashboardController implements Initializable {
     }
 
     private void initClientTable() {
-        ObservableMap<Integer, Country> countries = FXCollections.observableHashMap();
-        ObservableMap<Integer, AdministrativeDivision> divisions = FXCollections.observableHashMap();
-        DivisionDAO divisionDAO = DivisionDAO.getInstance();
-        CountryDAO countryDAO = CountryDAO.getInstance();
         clientTable.setItems(clientObservableList);
         clientTable.setPlaceholder(new Text("there are currently no clients"));
+        setClientTableCellValueFactories();
+        setClientTableCellFactories();
+    }
+
+    private void setClientTableCellValueFactories() {
         clientIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         clientNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         clientAddressCol.setCellValueFactory(new PropertyValueFactory<>("address"));
@@ -196,6 +247,13 @@ public class DashboardController implements Initializable {
         clientPhoneCol.setCellValueFactory(new PropertyValueFactory<>("phone"));
         clientDivisionCol.setCellValueFactory(new PropertyValueFactory<>("divisionId"));
         clientCountryCol.setCellValueFactory(new PropertyValueFactory<>("divisionId"));
+    }
+
+    private void setClientTableCellFactories() {
+        ObservableMap<Integer, Country> countries = FXCollections.observableHashMap();
+        ObservableMap<Integer, AdministrativeDivision> divisions = FXCollections.observableHashMap();
+        DivisionDAO divisionDAO = DivisionDAO.getInstance();
+        CountryDAO countryDAO = CountryDAO.getInstance();
 
         clientDivisionCol.setCellFactory(c -> new TableCell<>() {
             @Override
@@ -246,16 +304,16 @@ public class DashboardController implements Initializable {
                 }
             }
         });
-
     }
 
     private void initApptTable() {
-        ContactDAO contactDAO = ContactDAO.getInstance();
-        UserDAO userDAO = UserDAO.getInstance();
-        ObservableMap<Integer, Contact> contacts = FXCollections.observableHashMap();
-        ObservableMap<Integer, User> users = FXCollections.observableHashMap();
         apptTable.setItems(appointmentObservableList);
         apptTable.setPlaceholder(new Text("there are currently no appointments"));
+        setApptTableCellValueFactories();
+        setApptTableCellFactories();
+    }
+
+    private void setApptTableCellValueFactories() {
         apptIdCol.setCellValueFactory(new PropertyValueFactory<>("id"));
         apptDescriptionCol.setCellValueFactory(new PropertyValueFactory<>("description"));
         apptLocationCol.setCellValueFactory(new PropertyValueFactory<>("location"));
@@ -266,22 +324,17 @@ public class DashboardController implements Initializable {
         apptClientCol.setCellValueFactory(new PropertyValueFactory<>("clientId"));
         apptContactCol.setCellValueFactory(new PropertyValueFactory<>("contactId"));
         apptUserCol.setCellValueFactory(new PropertyValueFactory<>("userId"));
+    }
 
-        apptDateCol.setCellFactory(c -> new TableCell<>() {
-            @Override
-            protected void updateItem(OffsetDateTime time, boolean empty) {
-                super.updateItem(time, empty);
-                if (empty || time == null) {
-                    setText(null);
-                } else {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                    setText(time.format(formatter));
-                }
-            }
-        });
+    private void setApptTableCellFactories() {
+        ContactDAO contactDAO = ContactDAO.getInstance();
+        UserDAO userDAO = UserDAO.getInstance();
+        ObservableMap<Integer, Contact> contacts = FXCollections.observableHashMap();
+        ObservableMap<Integer, User> users = FXCollections.observableHashMap();
 
-        apptStartCol.setCellFactory(c -> timeCellFactory());
-        apptEndCol.setCellFactory(c -> timeCellFactory());
+        apptDateCol.setCellFactory(c -> dateTimeCellFactory("yyyy-MM-dd"));
+        apptStartCol.setCellFactory(c -> dateTimeCellFactory("HH:mm a"));
+        apptEndCol.setCellFactory(c -> dateTimeCellFactory("HH:mm a"));
 
         apptClientCol.setCellFactory(c -> new TableCell<>() {
             @Override
@@ -357,8 +410,8 @@ public class DashboardController implements Initializable {
     }
 
     //cell factory for start and end columns
-    public <S> TableCell<S, OffsetDateTime> timeCellFactory() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm a");
+    private <S> TableCell<S, OffsetDateTime> dateTimeCellFactory(String format) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         return new TableCell<>() {
             @Override
             protected void updateItem(OffsetDateTime time, boolean empty) {
@@ -372,37 +425,6 @@ public class DashboardController implements Initializable {
         };
 
     }
-
-    private final MapChangeListener<Integer, Client> clientMapChangeListener = change -> {
-        if (change.wasAdded()) {
-            Client update = change.getValueAdded();
-            clientObservableList.sort(compareClientsById);
-            int index = Collections.binarySearch(clientObservableList, update, compareClientsById);
-            if (index >= 0) {
-                clientObservableList.set(index, update);
-                return;
-            }
-            clientObservableList.add(update);
-        } else {
-            clientObservableList.remove(change.getValueRemoved());
-        }
-
-    };
-
-    private final MapChangeListener<Integer, Appointment> apptMapChangeListener = change -> {
-        if (change.wasAdded()) {
-            Appointment update = change.getValueAdded();
-            appointmentObservableList.sort(compareAppointmentsById);
-            int index = Collections.binarySearch(appointmentObservableList, update, compareAppointmentsById);
-            if (index >= 0) {
-                appointmentObservableList.set(index, update);
-                return;
-            }
-            appointmentObservableList.add(update);
-        } else {
-            appointmentObservableList.remove(change.getValueRemoved());
-        }
-    };
 
     public void setUser(User user) {
         this.user = user;
