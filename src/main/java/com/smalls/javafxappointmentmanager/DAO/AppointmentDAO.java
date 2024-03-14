@@ -82,15 +82,15 @@ public class AppointmentDAO {
         return appointments;
     }
 
-    public void save(Appointment a) throws SQLException {
-        String description = a.getDescription();
-        String location = a.getLocation();
-        String type = a.getType();
-        OffsetDateTime start = a.getStart();
-        OffsetDateTime end = a.getEnd();
-        int clientId = a.getClientId();
-        int userId = a.getUserId();
-        int contactId = a.getContactId();
+    public void save(Appointment appointment) throws SQLException {
+        String description = appointment.getDescription();
+        String location = appointment.getLocation();
+        String type = appointment.getType();
+        OffsetDateTime start = appointment.getStart();
+        OffsetDateTime end = appointment.getEnd();
+        int clientId = appointment.getClientId();
+        int userId = appointment.getUserId();
+        int contactId = appointment.getContactId();
         int nextId;
 
         String update = "INSERT INTO appointments " +
@@ -133,7 +133,7 @@ public class AppointmentDAO {
         }
     }
 
-    public void update(int id, Appointment a) throws SQLException {
+    public void update(int id, Appointment appointment) throws SQLException {
         String update = "UPDATE appointments " +
                 "SET description=?, " +
                 "location=?, " +
@@ -146,20 +146,20 @@ public class AppointmentDAO {
                 "WHERE appointment_id=?";
 
         try (PreparedStatement stmt = conn.prepareStatement(update)) {
-            Timestamp start = Timestamp.valueOf(a.getStart().toLocalDateTime());
-            Timestamp end = Timestamp.valueOf(a.getEnd().toLocalDateTime());
+            Timestamp start = Timestamp.valueOf(appointment.getStart().toLocalDateTime());
+            Timestamp end = Timestamp.valueOf(appointment.getEnd().toLocalDateTime());
 
-            stmt.setString(1, a.getDescription());
-            stmt.setString(2, a.getLocation());
-            stmt.setString(3, a.getType());
+            stmt.setString(1, appointment.getDescription());
+            stmt.setString(2, appointment.getLocation());
+            stmt.setString(3, appointment.getType());
             stmt.setTimestamp(4, start);
             stmt.setTimestamp(5, end);
-            stmt.setInt(6, a.getClientId());
-            stmt.setInt(7, a.getUserId());
-            stmt.setInt(8, a.getContactId());
+            stmt.setInt(6, appointment.getClientId());
+            stmt.setInt(7, appointment.getUserId());
+            stmt.setInt(8, appointment.getContactId());
             stmt.setInt(9, id);
 
-            if (stmt.executeUpdate() == 1) appointments.put(id, a);
+            if (stmt.executeUpdate() == 1) appointments.put(id, appointment);
         }
     }
 
