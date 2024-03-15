@@ -102,9 +102,8 @@ public class LoginController implements Initializable {
         URL dashboardView = getClass()
                 .getResource("/com/smalls/javafxappointmentmanager/view/dashboard-view.fxml");
         loader.setLocation(dashboardView);
+        loader.setControllerFactory(param -> new DashboardController((user)));
         Parent root = loader.load();
-        DashboardController controller = loader.getController();
-        controller.setUser(user);
         Scene scene = new Scene(root);
         if (styleSheet != null) {
             scene.getStylesheets().add(styleSheet.toExternalForm());

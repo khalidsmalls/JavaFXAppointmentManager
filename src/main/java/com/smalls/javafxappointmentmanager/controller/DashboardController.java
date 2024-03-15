@@ -9,12 +9,16 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
@@ -103,6 +107,8 @@ public class DashboardController implements Initializable {
 
     private User user;
 
+    private Stage stage;
+
     //limit text input length to 50 characters
     private final UnaryOperator<TextFormatter.Change> lengthFilter = change -> {
         String newText = change.getControlNewText();
@@ -157,11 +163,16 @@ public class DashboardController implements Initializable {
         }
     };
 
+    public DashboardController(User user) {
+        this.user = user;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         clientSearchInput.setTextFormatter(new TextFormatter<>(lengthFilter));
         clientDAO = ClientDAO.getInstance();
         appointmentDAO = AppointmentDAO.getInstance();
+        stage = new Stage();
 
         try {
             clients = clientDAO.getAll();
@@ -221,7 +232,26 @@ public class DashboardController implements Initializable {
     }
 
     @FXML
-    private void onNewClient() {
+    private void onNewClient() throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass()
+                .getResource(
+                        "/com/smalls/javafxappointmentmanager/view/client-view.fxml"
+                )
+        );
+        Parent root = loader.load();
+        ClientViewController controller = loader.getController();
+        controller.setClient(null);
+        Scene scene = new Scene(root);
+        URL stylesheet = getClass()
+                .getResource("/com/smalls/javafxappointmentmanager/styles.css");
+        if (stylesheet != null) {
+            scene.getStylesheets().add(String.valueOf(stylesheet));
+        }
+        stage.setScene(scene);
+        stage.setMinWidth(1100);
+        stage.setMinHeight(600);
+        stage.show();
     }
 
     @FXML
@@ -373,11 +403,7 @@ public class DashboardController implements Initializable {
                     setText(null);
                 } else {
                     Client client = clients.get(clientId);
-                    if (client != null) {
-                        setText(client.getName());
-                    } else {
-                        setText("Unknown");
-                    }
+                    setText(client == null ? "Unknown" : client.getName());
                 }
             }
         });
@@ -399,12 +425,7 @@ public class DashboardController implements Initializable {
                             throw new RuntimeException(e);
                         }
                     }
-
-                    if (contact != null) {
-                        setText(contact.getName());
-                    } else {
-                        setText("Unknown");
-                    }
+                    setText(contact == null ? "Unknown" : contact.getName());
                 }
             }
         });
@@ -427,12 +448,7 @@ public class DashboardController implements Initializable {
                             throw new RuntimeException(e);
                         }
                     }
-
-                    if (user != null) {
-                        setText(user.getName());
-                    } else {
-                        setText("Unknown");
-                    }
+                    setText(user == null ? "Unknown" : user.getName());
                 }
             }
         });
@@ -453,10 +469,6 @@ public class DashboardController implements Initializable {
             }
         };
 
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
 }
