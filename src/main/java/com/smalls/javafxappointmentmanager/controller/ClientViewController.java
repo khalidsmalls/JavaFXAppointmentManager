@@ -12,6 +12,7 @@ import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -82,7 +83,8 @@ public class ClientViewController implements Initializable {
             divisions = divisionDAO.getAll();
             initComboBoxes();
         } catch (SQLException e) {
-            //TODO alert user
+            String msg = "There was an error fetching data: ";
+            new Alert(Alert.AlertType.ERROR, msg).showAndWait();
             throw new RuntimeException(e);
         }
 
@@ -90,13 +92,11 @@ public class ClientViewController implements Initializable {
             try {
                 initModifyClient(client);
             } catch (SQLException e) {
-                //TODO handle exception
                 throw new RuntimeException(e);
             }
         }
 
         setTextFormatters();
-
     }
 
     @FXML
@@ -104,6 +104,8 @@ public class ClientViewController implements Initializable {
         String name, address, postalCode, phone;
         int id, divisionId;
         ClientDAO clientDAO = ClientDAO.getInstance();
+        Scene currentScene = ((Button) e.getSource()).getScene();
+        Stage stage = (Stage) currentScene.getWindow();
 
         if (validateInputs()) {
             name = clientNameInput.getText().trim();
@@ -114,8 +116,8 @@ public class ClientViewController implements Initializable {
                     .getSelectedItem()
                     .getId();
         } else {
-            new Alert(Alert.AlertType.ERROR, "All fields are required")
-                    .showAndWait();
+            String alertMsg = "All fields are required";
+            new Alert(Alert.AlertType.ERROR, alertMsg).showAndWait();
             return;
         }
 
@@ -133,17 +135,19 @@ public class ClientViewController implements Initializable {
         if (id == -1) {
             clientDAO.save(c);
         } else {
-            clientDAO.update(c.getId(), c);
+            clientDAO.update(id, c);
         }
 
         clearInputs();
-        ((Stage) (((Button) e.getSource()).getScene().getWindow())).close();
+        stage.close();
 
     }
 
     @FXML
     private void onCancel(ActionEvent e) {
-        ((Stage) (((Button) e.getSource()).getScene().getWindow())).close();
+        Scene currentScene = ((Button) e.getSource()).getScene();
+        Stage stage = (Stage) currentScene.getWindow();
+        stage.close();
     }
 
 
@@ -165,7 +169,8 @@ public class ClientViewController implements Initializable {
                 }));
     }
 
-    private final Callback<ListView<Country>, ListCell<Country>> countryCellFactory = new Callback<>() {
+    private final Callback<ListView<Country>, ListCell<Country>>
+            countryCellFactory = new Callback<>() {
         @Override
         public ListCell<Country> call(ListView<Country> countryListView) {
             return new ListCell<>() {
@@ -178,9 +183,10 @@ public class ClientViewController implements Initializable {
         }
     };
 
-    private final Callback<ListView<AdministrativeDivision>, ListCell<AdministrativeDivision>> divisionCellFactory = new Callback<>() {
+    private final Callback<ListView<AdministrativeDivision>, ListCell<AdministrativeDivision>>
+            divisionCellFactory = new Callback<>() {
         @Override
-        public ListCell<AdministrativeDivision> call(ListView<AdministrativeDivision> administrativeDivisionListView) {
+        public ListCell<AdministrativeDivision> call(ListView<AdministrativeDivision> divs) {
             return new ListCell<>() {
                 @Override
                 public void updateItem(AdministrativeDivision d, boolean empty) {
@@ -209,8 +215,6 @@ public class ClientViewController implements Initializable {
     }
 
     private void initModifyClient(Client client) throws SQLException {
-        clientViewLabel.setText("Modify Client");
-        clientIdInput.setText(String.valueOf(client.getId()));
         clientNameInput.setText(client.getName());
         clientAddressInput.setText(client.getAddress());
         clientPostalCodeInput.setText(client.getPostalCode());

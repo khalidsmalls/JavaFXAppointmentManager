@@ -35,7 +35,6 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         String nowDateTime = DateTimeFormatter
                 .ofLocalizedDateTime(FormatStyle.MEDIUM)
                 .format(LocalDateTime.now());
@@ -53,7 +52,8 @@ public class LoginController implements Initializable {
         try {
             User user = userDAO.authenticateUser(username, password);
             String logMsg;
-            if (user != null) { //successful login
+            //successful login
+            if (user != null) {
                 logMsg = String.format(
                         "User \"%s\" successful login",
                         username
@@ -61,14 +61,14 @@ public class LoginController implements Initializable {
                 CustomLogger.log(className, Level.INFO, logMsg);
 
                 loadDashboardView(user);
-                //TODO close login view
-            } else { //failed login
+                ((Stage) usernameInput.getScene().getWindow()).close();
+            } else {
+                //failed login
                 logMsg = String.format("User \"%s\" failed login", username);
                 CustomLogger.log(className, Level.WARNING, logMsg);
 
-                new Alert(Alert.AlertType.ERROR,
-                        "Login Failed: Invalid Credentials")
-                        .showAndWait();
+                String alertMsg = "Login Failed: Invalid Credentials";
+                new Alert(Alert.AlertType.ERROR, alertMsg).showAndWait();
             }
 
         } catch (SQLException | IOException e) {
@@ -77,21 +77,20 @@ public class LoginController implements Initializable {
                     e.getMessage()
             );
             CustomLogger.log(className, Level.SEVERE, logMsg);
-            //TODO how to best handle the exception?
             throw new RuntimeException(e);
         }
     }
 
     @FXML
     private void onClose(ActionEvent e) {
-        Alert confirm = new Alert(
-                Alert.AlertType.CONFIRMATION,
-                "Are you sure you would like to close the application?"
-        );
+        String alertMsg = "Are you sure you would like to close the application?";
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, alertMsg);
         Optional<ButtonType> result = confirm.showAndWait();
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            ((Stage) (((Button) e.getSource()).getScene().getWindow())).close();
+            Scene currentScene = ((Button) e.getSource()).getScene();
+            Stage currentStage = ((Stage) currentScene.getWindow());
+            currentStage.close();
         }
     }
 
@@ -109,7 +108,7 @@ public class LoginController implements Initializable {
             scene.getStylesheets().add(styleSheet.toExternalForm());
         }
         Stage stage = new Stage();
-        stage.setTitle("Dashboard");
+        stage.setTitle("JavaFX Appointment Manager");
         stage.setScene(scene);
         stage.setMinHeight(775);
         stage.setMinWidth(1300);

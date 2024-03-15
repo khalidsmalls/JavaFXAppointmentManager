@@ -103,6 +103,10 @@ public class DashboardController implements Initializable {
 
     private Stage stage;
 
+    private ClientDAO clientDAO;
+
+    private AppointmentDAO appointmentDAO;
+
     private final String resourcePath = "/com/smalls/javafxappointmentmanager/view/";
 
     private final URL stylesheet = getClass()
@@ -169,8 +173,8 @@ public class DashboardController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         clientSearchInput.setTextFormatter(new TextFormatter<>(lengthFilter));
-        ClientDAO clientDAO = ClientDAO.getInstance();
-        AppointmentDAO appointmentDAO = AppointmentDAO.getInstance();
+        clientDAO = ClientDAO.getInstance();
+        appointmentDAO = AppointmentDAO.getInstance();
         stage = new Stage();
 
         try {
@@ -183,14 +187,11 @@ public class DashboardController implements Initializable {
             initClientTable();
             initApptTable();
         } catch (SQLException | RuntimeException e) {
-            new Alert(Alert.AlertType.ERROR,
-                    "There was an error loading the dashboard data"
-            ).showAndWait();
-            CustomLogger.log(
-                    getClass().getName(),
-                    Level.SEVERE,
-                    "error loading dashboard data: " + e.getMessage()
-            );
+            String alertMsg = "There was an error loading the dashboard data";
+            String logMsg = "error loading dashboard data: " + e.getMessage();
+
+            new Alert(Alert.AlertType.ERROR, alertMsg).showAndWait();
+            CustomLogger.log(getClass().getName(), Level.SEVERE, logMsg);
             throw new RuntimeException(e);
         }
 
@@ -233,11 +234,10 @@ public class DashboardController implements Initializable {
     @FXML
     private void onNewClient() throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(
-                getClass().getResource(
-                        resourcePath + "client-view.fxml"
-                )
+        URL location =  getClass().getResource(
+                resourcePath + "client-view.fxml"
         );
+        loader.setLocation(location);
         Parent root = loader.load();
         ClientViewController controller = loader.getController();
         controller.setClientViewLabelText("New Client");
@@ -245,8 +245,9 @@ public class DashboardController implements Initializable {
         Scene scene = new Scene(root);
 
         if (stylesheet != null) {
-            scene.getStylesheets().add(String.valueOf(stylesheet));
+            scene.getStylesheets().add(stylesheet.toString());
         }
+        stage.setTitle("New Client");
         stage.setScene(scene);
         stage.setMinWidth(1100);
         stage.setMinHeight(600);
@@ -255,22 +256,27 @@ public class DashboardController implements Initializable {
 
     @FXML
     private void onModifyClient() throws IOException {
-        Client c = clientTable.getSelectionModel().getSelectedItem();
+        Client client = clientTable.getSelectionModel().getSelectedItem();
+        if (client == null) {
+            String msg = "Please select a client";
+            new Alert(Alert.AlertType.ERROR, msg).showAndWait();
+            return;
+        }
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(
-                getClass().getResource(
-                        resourcePath + "client-view.fxml"
-                )
+        URL location = getClass().getResource(
+                resourcePath + "client-view.fxml"
         );
-        loader.setControllerFactory(param -> new ClientViewController(c));
+        loader.setLocation(location);
+        loader.setControllerFactory(param -> new ClientViewController(client));
         Parent root = loader.load();
         ClientViewController controller = loader.getController();
         controller.setClientViewLabelText("Modify Client");
-        controller.setClientIdInputText(String.valueOf(c.getId()));
+        controller.setClientIdInputText(String.valueOf(client.getId()));
         Scene scene = new Scene(root);
         if (stylesheet != null) {
-            scene.getStylesheets().add(String.valueOf(stylesheet));
+            scene.getStylesheets().add(stylesheet.toString());
         }
+        stage.setTitle("Modify Client");
         stage.setScene(scene);
         stage.setMinWidth(1100);
         stage.setMinHeight(600);
@@ -278,7 +284,17 @@ public class DashboardController implements Initializable {
     }
 
     @FXML
-    private void onDeleteClient() {
+    private void onDeleteClient() throws SQLException {
+        Client client = clientTable.getSelectionModel().getSelectedItem();
+        String alertMsg = "Are you sure you would like to delete " +
+                client.getName() + " and his/her scheduled appointments?";
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, alertMsg);
+        Optional<ButtonType> result = confirm.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            appointmentDAO.deleteByClientId(client.getId());
+            clientDAO.delete(client);
+        }
     }
 
     @FXML
@@ -299,15 +315,14 @@ public class DashboardController implements Initializable {
 
     @FXML
     private void onClose(ActionEvent e) {
-        Alert confirm = new Alert(
-                Alert.AlertType.CONFIRMATION,
-                "Are you sure you would like to close the application?"
-        );
+        String msg = "Are you sure you would like to close the application?";
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, msg);
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            ((Stage) (((Button) e.getSource()).getScene().getWindow())).close();
+            Scene currentScene = ((Button) e.getSource()).getScene();
+            Stage currentStage = (Stage) currentScene.getWindow();
+            currentStage.close();
         }
-
     }
 
     private void initClientTable() {
