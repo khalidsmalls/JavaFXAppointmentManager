@@ -13,7 +13,6 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-
 <AnchorPane fx:id="root" prefHeight="600.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smalls.javafxappointmentmanager.controller.ClientViewController">
    <children>
       <BorderPane fx:id="main" layoutX="400.0" layoutY="200.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
@@ -149,7 +148,7 @@
                         </StackPane>
                         <StackPane prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="5">
                            <children>
-                              <ComboBox fx:id="DivisionCombo" prefHeight="24.0" prefWidth="159.0" />
+                              <ComboBox fx:id="divisionCombo" prefHeight="24.0" prefWidth="159.0" />
                            </children>
                            <padding>
                               <Insets right="40.0" />
