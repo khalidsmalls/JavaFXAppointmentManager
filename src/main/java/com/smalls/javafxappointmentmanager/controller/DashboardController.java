@@ -241,7 +241,8 @@ public class DashboardController implements Initializable {
         );
         Parent root = loader.load();
         ClientViewController controller = loader.getController();
-        controller.setClient(null);
+        controller.setClientViewLabelText("New Client");
+        controller.setClientIdInputText("Auto Gen - Disabled");
         Scene scene = new Scene(root);
         URL stylesheet = getClass()
                 .getResource("/com/smalls/javafxappointmentmanager/styles.css");

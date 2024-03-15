@@ -54,6 +54,10 @@ public class ClientViewController implements Initializable {
 
     private ObservableMap<Integer, AdministrativeDivision> divisions;
 
+    private String clientViewLabelText;
+
+    private int clientDivisionId;
+
     private final UnaryOperator<TextFormatter.Change> inputFilter = change -> {
         String newText = change.getControlNewText();
         if (newText.length() > 50) {
@@ -65,22 +69,36 @@ public class ClientViewController implements Initializable {
         }
     };
 
+    public ClientViewController() {
+    }
+
+    public ClientViewController(Client c) {
+        this.client = c;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         clientIdInput.setEditable(false);
         DivisionDAO divisionDAO = DivisionDAO.getInstance();
+
         try {
             countries = CountryDAO.getInstance().getAll();
             divisions = divisionDAO.getAll();
+            initComboBoxes();
         } catch (SQLException e) {
             //TODO alert user
             throw new RuntimeException(e);
         }
-        try {
-            initComboBoxes();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+
+        if (client != null) {
+            try {
+                initModifyClient(client);
+            } catch (SQLException e) {
+                //TODO handle exception
+                throw new RuntimeException(e);
+            }
         }
+
     }
 
     @FXML
@@ -198,20 +216,14 @@ public class ClientViewController implements Initializable {
                 divisionCombo.getSelectionModel().isEmpty());
     }
 
-    public void setClient(Client client) {
-        this.client = client;
-        if (client == null) {
-            clientIdInput.setText("Auto Gen - Disabled");
-            clientViewLabel.setText("New Client");
-        } else {
-            try {
-                initModifyClient(client);
-            } catch (SQLException e) {
-                //TODO handle exception
-                throw new RuntimeException(e);
-            }
-        }
+    public void setClientViewLabelText(String s) {
+        this.clientViewLabelText = s;
     }
+
+    public void setClientIdInputText(String s) {
+        clientIdInput.setText(s);
+    }
+
 
     private void initModifyClient(Client client) throws SQLException {
         clientViewLabel.setText("Modify Client");
