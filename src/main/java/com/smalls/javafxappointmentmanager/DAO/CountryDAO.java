@@ -4,6 +4,7 @@ import com.smalls.javafxappointmentmanager.MainApplication;
 import com.smalls.javafxappointmentmanager.model.Country;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +15,7 @@ public class CountryDAO {
 
     private static CountryDAO instance;
 
-    private ObservableList<Country> countries;
+    private ObservableMap<Integer, Country> countries;
 
     private final Connection conn;
 
@@ -29,9 +30,9 @@ public class CountryDAO {
         this.conn = MainApplication.getConnection();
     }
 
-    public ObservableList<Country> getAll() throws SQLException {
+    public ObservableMap<Integer, Country> getAll() throws SQLException {
         if (countries == null) {
-            countries = FXCollections.observableArrayList();
+            countries = FXCollections.observableHashMap();
         } else {
             countries.clear();
         }
@@ -45,7 +46,7 @@ public class CountryDAO {
                 int id = resultSet.getInt("country_id");
                 String name = resultSet.getString("name");
 
-                countries.add(new Country(id, name));
+                countries.put(id, new Country(id, name));
             }
         }
         return countries;

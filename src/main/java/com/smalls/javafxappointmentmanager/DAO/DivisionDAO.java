@@ -5,6 +5,7 @@ import com.smalls.javafxappointmentmanager.model.AdministrativeDivision;
 import com.smalls.javafxappointmentmanager.model.Country;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +16,7 @@ public class DivisionDAO {
 
     private static DivisionDAO instance;
 
-    private ObservableList<AdministrativeDivision> divisions;
+    private ObservableMap<Integer, AdministrativeDivision> divisions;
 
     private final Connection conn;
 
@@ -30,9 +31,9 @@ public class DivisionDAO {
         this.conn = MainApplication.getConnection();
     }
 
-    public ObservableList<AdministrativeDivision> getAll() throws SQLException {
+    public ObservableMap<Integer, AdministrativeDivision> getAll() throws SQLException {
         if (divisions == null) {
-            divisions = FXCollections.observableArrayList();
+            divisions = FXCollections.observableHashMap();
         } else {
             divisions.clear();
         }
@@ -51,7 +52,8 @@ public class DivisionDAO {
                 String name = resultSet.getString("name");
                 int countryId = resultSet.getInt("country_id");
 
-                divisions.add(
+                divisions.put(
+                        id,
                         new AdministrativeDivision(
                                 id,
                                 name,
