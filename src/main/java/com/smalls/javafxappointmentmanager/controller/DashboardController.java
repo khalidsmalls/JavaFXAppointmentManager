@@ -99,15 +99,14 @@ public class DashboardController implements Initializable {
 
     private ObservableMap<Integer, Client> clients;
 
-    private ObservableMap<Integer, Appointment> appointments;
-
-    private ClientDAO clientDAO;
-
-    private AppointmentDAO appointmentDAO;
-
-    private User user;
+    private final User user;
 
     private Stage stage;
+
+    private final String resourcePath = "/com/smalls/javafxappointmentmanager/view/";
+
+    private final URL stylesheet = getClass()
+            .getResource("/com/smalls/javafxappointmentmanager/styles.css");
 
     //limit text input length to 50 characters
     private final UnaryOperator<TextFormatter.Change> lengthFilter = change -> {
@@ -170,13 +169,13 @@ public class DashboardController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         clientSearchInput.setTextFormatter(new TextFormatter<>(lengthFilter));
-        clientDAO = ClientDAO.getInstance();
-        appointmentDAO = AppointmentDAO.getInstance();
+        ClientDAO clientDAO = ClientDAO.getInstance();
+        AppointmentDAO appointmentDAO = AppointmentDAO.getInstance();
         stage = new Stage();
 
         try {
             clients = clientDAO.getAll();
-            appointments = appointmentDAO.getAll();
+            ObservableMap<Integer, Appointment> appointments = appointmentDAO.getAll();
             clientObservableList = FXCollections.observableArrayList(clients.values());
             appointmentObservableList = FXCollections.observableArrayList(appointments.values());
             clients.addListener(clientMapChangeListener);
@@ -234,9 +233,9 @@ public class DashboardController implements Initializable {
     @FXML
     private void onNewClient() throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass()
-                .getResource(
-                        "/com/smalls/javafxappointmentmanager/view/client-view.fxml"
+        loader.setLocation(
+                getClass().getResource(
+                        resourcePath + "client-view.fxml"
                 )
         );
         Parent root = loader.load();
@@ -244,8 +243,7 @@ public class DashboardController implements Initializable {
         controller.setClientViewLabelText("New Client");
         controller.setClientIdInputText("Auto Gen - Disabled");
         Scene scene = new Scene(root);
-        URL stylesheet = getClass()
-                .getResource("/com/smalls/javafxappointmentmanager/styles.css");
+
         if (stylesheet != null) {
             scene.getStylesheets().add(String.valueOf(stylesheet));
         }
@@ -256,7 +254,27 @@ public class DashboardController implements Initializable {
     }
 
     @FXML
-    private void onModifyClient() {
+    private void onModifyClient() throws IOException {
+        Client c = clientTable.getSelectionModel().getSelectedItem();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(
+                getClass().getResource(
+                        resourcePath + "client-view.fxml"
+                )
+        );
+        loader.setControllerFactory(param -> new ClientViewController(c));
+        Parent root = loader.load();
+        ClientViewController controller = loader.getController();
+        controller.setClientViewLabelText("Modify Client");
+        controller.setClientIdInputText(String.valueOf(c.getId()));
+        Scene scene = new Scene(root);
+        if (stylesheet != null) {
+            scene.getStylesheets().add(String.valueOf(stylesheet));
+        }
+        stage.setScene(scene);
+        stage.setMinWidth(1100);
+        stage.setMinHeight(600);
+        stage.show();
     }
 
     @FXML

@@ -54,10 +54,6 @@ public class ClientViewController implements Initializable {
 
     private ObservableMap<Integer, AdministrativeDivision> divisions;
 
-    private String clientViewLabelText;
-
-    private int clientDivisionId;
-
     private final UnaryOperator<TextFormatter.Change> inputFilter = change -> {
         String newText = change.getControlNewText();
         if (newText.length() > 50) {
@@ -99,6 +95,8 @@ public class ClientViewController implements Initializable {
             }
         }
 
+        setTextFormatters();
+
     }
 
     @FXML
@@ -137,23 +135,17 @@ public class ClientViewController implements Initializable {
         } else {
             clientDAO.update(c.getId(), c);
         }
+
+        clearInputs();
         ((Stage) (((Button) e.getSource()).getScene().getWindow())).close();
 
     }
-
-
 
     @FXML
     private void onCancel(ActionEvent e) {
         ((Stage) (((Button) e.getSource()).getScene().getWindow())).close();
     }
 
-    private void setTextFormatters() {
-        clientNameInput.setTextFormatter(new TextFormatter<>(inputFilter));
-        clientAddressInput.setTextFormatter(new TextFormatter<>(inputFilter));
-        clientPostalCodeInput.setTextFormatter(new TextFormatter<>(inputFilter));
-        clientPhoneInput.setTextFormatter(new TextFormatter<>(inputFilter));
-    }
 
     private void initComboBoxes() throws SQLException {
         countryCombo.setItems(FXCollections.observableArrayList(countries.values()));
@@ -199,14 +191,6 @@ public class ClientViewController implements Initializable {
         }
     };
 
-    private void clearInputs() {
-        clientIdInput.clear();
-        clientNameInput.clear();
-        clientAddressInput.clear();
-        clientPostalCodeInput.clear();
-        clientPhoneInput.clear();
-    }
-
     private boolean validateInputs() {
         return !(clientNameInput.getText().isEmpty() ||
                 clientAddressInput.getText().isEmpty() ||
@@ -217,13 +201,12 @@ public class ClientViewController implements Initializable {
     }
 
     public void setClientViewLabelText(String s) {
-        this.clientViewLabelText = s;
+        clientViewLabel.setText(s);
     }
 
     public void setClientIdInputText(String s) {
         clientIdInput.setText(s);
     }
-
 
     private void initModifyClient(Client client) throws SQLException {
         clientViewLabel.setText("Modify Client");
@@ -238,6 +221,21 @@ public class ClientViewController implements Initializable {
 
         countryCombo.setValue(countries.get(countryId));
         divisionCombo.setValue(divisions.get(divisionId));
+    }
+
+    private void setTextFormatters() {
+        clientNameInput.setTextFormatter(new TextFormatter<>(inputFilter));
+        clientAddressInput.setTextFormatter(new TextFormatter<>(inputFilter));
+        clientPostalCodeInput.setTextFormatter(new TextFormatter<>(inputFilter));
+        clientPhoneInput.setTextFormatter(new TextFormatter<>(inputFilter));
+    }
+
+    private void clearInputs() {
+        clientIdInput.clear();
+        clientNameInput.clear();
+        clientAddressInput.clear();
+        clientPostalCodeInput.clear();
+        clientPhoneInput.clear();
     }
 }
 
