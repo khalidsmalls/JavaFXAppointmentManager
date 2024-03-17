@@ -14,8 +14,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-
-<AnchorPane fx:id="root" prefHeight="600.0" prefWidth="1150.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smalls.javafxappointmentmanager.controller.AppointmentViewController">
+<AnchorPane fx:id="root" prefHeight="600.0" prefWidth="1175.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smalls.javafxappointmentmanager.controller.AppointmentViewController">
    <children>
       <BorderPane fx:id="main" layoutX="398.0" layoutY="136.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <top>
@@ -45,8 +44,8 @@
                   <GridPane layoutX="440.0" layoutY="151.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="60.0">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="166.0" minWidth="10.0" prefWidth="127.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="182.0" minWidth="10.0" prefWidth="159.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="250.0" minWidth="10.0" prefWidth="123.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="182.0" minWidth="10.0" prefWidth="172.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="250.0" minWidth="10.0" prefWidth="106.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="217.0" minWidth="2.0" prefWidth="155.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="245.0" minWidth="10.0" prefWidth="95.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="201.0" minWidth="10.0" prefWidth="151.0" />
@@ -82,7 +81,7 @@
                         </StackPane>
                         <StackPane prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1">
                            <children>
-                              <TextField fx:id="appointmentIdInput" />
+                              <TextField fx:id="idInput" />
                            </children>
                            <padding>
                               <Insets right="10.0" />
