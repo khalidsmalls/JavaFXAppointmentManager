@@ -36,7 +36,7 @@ public class UserDAO {
             users.clear();
         }
 
-        String query = "SELECT user_id, username, FROM users";
+        String query = "SELECT user_id, username FROM users";
         ResultSet resultSet;
 
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
