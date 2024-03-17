@@ -3,7 +3,7 @@ package com.smalls.javafxappointmentmanager.model;
 /**
  * state or province
  */
-public class AdministrativeDivision {
+public class AdministrativeDivision implements Named {
 
     private final int id;
 

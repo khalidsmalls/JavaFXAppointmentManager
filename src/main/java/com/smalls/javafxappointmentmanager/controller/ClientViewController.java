@@ -6,6 +6,8 @@ import com.smalls.javafxappointmentmanager.DAO.DivisionDAO;
 import com.smalls.javafxappointmentmanager.model.AdministrativeDivision;
 import com.smalls.javafxappointmentmanager.model.Client;
 import com.smalls.javafxappointmentmanager.model.Country;
+import com.smalls.javafxappointmentmanager.model.User;
+import com.smalls.javafxappointmentmanager.utils.CellFactoryUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -145,14 +147,17 @@ public class ClientViewController implements Initializable {
 
     @FXML
     private void onCancel(ActionEvent e) {
-        Scene currentScene = ((Button) e.getSource()).getScene();
-        Stage stage = (Stage) currentScene.getWindow();
+        Button closeBtn = (Button) e.getSource();
+        Stage stage = (Stage) closeBtn.getScene().getWindow();
         stage.close();
     }
 
 
     private void initComboBoxes() throws SQLException {
         countryCombo.setItems(FXCollections.observableArrayList(countries.values()));
+        Callback<ListView<Country>, ListCell<Country>> countryCellFactory = CellFactoryUtil.createCellFactory();
+        Callback<ListView<AdministrativeDivision>, ListCell<AdministrativeDivision>> divisionCellFactory = CellFactoryUtil.createCellFactory();
+
         countryCombo.setCellFactory(countryCellFactory);
         countryCombo.setButtonCell(countryCellFactory.call(null));
         divisionCombo.setCellFactory(divisionCellFactory);
@@ -168,34 +173,6 @@ public class ClientViewController implements Initializable {
                     divisionCombo.setItems(matchingDivs);
                 }));
     }
-
-    private final Callback<ListView<Country>, ListCell<Country>>
-            countryCellFactory = new Callback<>() {
-        @Override
-        public ListCell<Country> call(ListView<Country> countryListView) {
-            return new ListCell<>() {
-                @Override
-                public void updateItem(Country c, boolean empty) {
-                    super.updateItem(c, empty);
-                    setText(empty ? null : c.getName());
-                }
-            };
-        }
-    };
-
-    private final Callback<ListView<AdministrativeDivision>, ListCell<AdministrativeDivision>>
-            divisionCellFactory = new Callback<>() {
-        @Override
-        public ListCell<AdministrativeDivision> call(ListView<AdministrativeDivision> divs) {
-            return new ListCell<>() {
-                @Override
-                public void updateItem(AdministrativeDivision d, boolean empty) {
-                    super.updateItem(d, empty);
-                    setText(empty ? null : d.getName());
-                }
-            };
-        }
-    };
 
     private boolean validateInputs() {
         return !(clientNameInput.getText().isEmpty() ||

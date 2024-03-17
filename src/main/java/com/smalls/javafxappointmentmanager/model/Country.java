@@ -1,6 +1,6 @@
 package com.smalls.javafxappointmentmanager.model;
 
-public class Country {
+public class Country implements Named {
 
     private final int id;
 

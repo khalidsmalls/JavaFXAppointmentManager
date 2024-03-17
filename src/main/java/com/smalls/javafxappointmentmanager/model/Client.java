@@ -1,6 +1,6 @@
 package com.smalls.javafxappointmentmanager.model;
 
-public class Client {
+public class Client implements Named {
 
     private final int id;
 

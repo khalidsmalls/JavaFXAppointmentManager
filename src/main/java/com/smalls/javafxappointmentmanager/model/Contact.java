@@ -1,6 +1,6 @@
 package com.smalls.javafxappointmentmanager.model;
 
-public class Contact {
+public class Contact implements Named {
 
     private final int id;
 
