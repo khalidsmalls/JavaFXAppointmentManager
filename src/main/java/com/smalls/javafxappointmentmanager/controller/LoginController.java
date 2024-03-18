@@ -3,6 +3,7 @@ package com.smalls.javafxappointmentmanager.controller;
 import com.smalls.javafxappointmentmanager.DAO.UserDAO;
 import com.smalls.javafxappointmentmanager.model.User;
 import com.smalls.javafxappointmentmanager.utils.CustomLogger;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -40,6 +41,7 @@ public class LoginController implements Initializable {
                 .format(LocalDateTime.now());
 
         dateTimeLabel.setText(nowDateTime);
+        Platform.runLater(() -> usernameInput.requestFocus());
     }
 
     @FXML

@@ -50,11 +50,11 @@ public class ClientViewController implements Initializable {
     @FXML
     private ComboBox<AdministrativeDivision> divisionCombo;
 
-    private Client client;
-
     private ObservableMap<Integer, Country> countries;
 
     private ObservableMap<Integer, AdministrativeDivision> divisions;
+
+    private Client client;
 
     private final UnaryOperator<TextFormatter.Change> inputFilter = change -> {
         String newText = change.getControlNewText();
@@ -67,11 +67,10 @@ public class ClientViewController implements Initializable {
         }
     };
 
-    public ClientViewController() {
-    }
+    public ClientViewController() {}
 
-    public ClientViewController(Client c) {
-        this.client = c;
+    public ClientViewController(Client client) {
+        this.client = client;
     }
 
     @Override
@@ -113,35 +112,31 @@ public class ClientViewController implements Initializable {
             address = clientAddressInput.getText().trim();
             postalCode = clientPostalCodeInput.getText().trim();
             phone = clientPhoneInput.getText().trim();
-            divisionId = divisionCombo.getSelectionModel()
-                    .getSelectedItem()
-                    .getId();
+            divisionId = divisionCombo.getValue().getId();
+            id = client != null ? client.getId() : -1;
+
+            Client c = new Client(
+                    id,
+                    name,
+                    address,
+                    postalCode,
+                    phone,
+                    divisionId
+            );
+
+            if (id == -1) {
+                clientDAO.save(c);
+            } else {
+                clientDAO.update(id, c);
+            }
+
+            clearInputs();
+            stage.close();
+
         } else {
             String alertMsg = "All fields are required";
             new Alert(Alert.AlertType.ERROR, alertMsg).showAndWait();
-            return;
         }
-
-        id = client != null ? client.getId() : -1;
-
-        Client c = new Client(
-                id,
-                name,
-                address,
-                postalCode,
-                phone,
-                divisionId
-        );
-
-        if (id == -1) {
-            clientDAO.save(c);
-        } else {
-            clientDAO.update(id, c);
-        }
-
-        clearInputs();
-        stage.close();
-
     }
 
     @FXML
