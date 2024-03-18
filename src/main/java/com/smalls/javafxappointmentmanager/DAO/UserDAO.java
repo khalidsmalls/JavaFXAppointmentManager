@@ -4,6 +4,7 @@ import com.smalls.javafxappointmentmanager.MainApplication;
 import com.smalls.javafxappointmentmanager.model.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +15,7 @@ public class UserDAO {
 
     private static UserDAO instance;
 
-    private ObservableList<User> users;
+    private ObservableMap<Integer, User> users;
 
     private final Connection conn;
 
@@ -29,9 +30,9 @@ public class UserDAO {
         this.conn = MainApplication.getConnection();
     }
 
-    public ObservableList<User> getAll() throws SQLException {
+    public ObservableMap<Integer, User> getAll() throws SQLException {
         if (users == null) {
-            users = FXCollections.observableArrayList();
+            users = FXCollections.observableHashMap();
         } else {
             users.clear();
         }
@@ -46,7 +47,7 @@ public class UserDAO {
                 int id = resultSet.getInt("user_id");
                 String name = resultSet.getString("username");
 
-                users.add(new User(id, name));
+                users.put(id, new User(id, name));
             }
         }
 
