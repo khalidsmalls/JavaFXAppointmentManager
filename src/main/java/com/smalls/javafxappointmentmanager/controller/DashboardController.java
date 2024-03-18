@@ -350,7 +350,16 @@ public class DashboardController implements Initializable {
     }
 
     @FXML
-    private void onDeleteAppt() {
+    private void onDeleteAppt() throws SQLException {
+        Appointment appointment = apptTable.getSelectionModel().getSelectedItem();
+        String alertMsg = "Are you sure you would like to delete the selected appointment: " +
+                appointment.getDescription() + "?";
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, alertMsg);
+        Optional<ButtonType> result = confirm.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            appointmentDAO.delete(appointment.getId());
+        }
     }
 
     @FXML
