@@ -49,17 +49,12 @@ public class AppointmentDAO {
             while (resultSet.next()) {
                 int id = resultSet.getInt("appointment_id");
 
-                //convert UTC timestamp to localDateTime object
-                LocalDateTime startLocal = resultSet.getTimestamp("start_time")
-                        .toLocalDateTime();
-                LocalDateTime endLocal = resultSet.getTimestamp("end_time")
-                        .toLocalDateTime();
-
-                //convert UTC to system local timezone
-                ZonedDateTime startTz = startLocal.atZone(ZoneOffset.UTC)
-                        .withZoneSameInstant(ZoneId.systemDefault());
-                ZonedDateTime endTz = endLocal.atZone(ZoneOffset.UTC)
-                        .withZoneSameInstant(ZoneId.systemDefault());
+                ZonedDateTime start = resultSet.getTimestamp("start_time")
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault());
+                ZonedDateTime end = resultSet.getTimestamp("end_time")
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault());
 
                 appointments.put(
                         id,
@@ -68,8 +63,8 @@ public class AppointmentDAO {
                                 resultSet.getString("description"),
                                 resultSet.getString("location"),
                                 resultSet.getString("appointment_type"),
-                                startTz.toOffsetDateTime(),
-                                endTz.toOffsetDateTime(),
+                                start.toOffsetDateTime(),
+                                end.toOffsetDateTime(),
                                 resultSet.getInt("client_id"),
                                 resultSet.getInt("user_id"),
                                 resultSet.getInt("contact_id")
@@ -94,7 +89,7 @@ public class AppointmentDAO {
         int nextId;
 
         String update = "INSERT INTO appointments " +
-                "(description, location, type, start, end, client_id, user_id, contact_id) " +
+                "(description, location, appointment_type, start_time, end_time, client_id, user_id, contact_id) " +
                 "VALUES (?,?,?,?,?,?,?,?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(

@@ -21,7 +21,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.OffsetDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
@@ -298,11 +298,55 @@ public class DashboardController implements Initializable {
     }
 
     @FXML
-    private void onNewAppt() {
+    private void onNewAppt() throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        URL location =  getClass().getResource(
+                resourcePath + "appointment-view.fxml"
+        );
+        loader.setLocation(location);
+        Parent root = loader.load();
+        AppointmentViewController controller = loader.getController();
+        controller.setAppointmentViewLabelText("New Appointment");
+        controller.setAppointmentIdInputText("Auto Gen - Disabled");
+        Scene scene = new Scene(root);
+
+        if (stylesheet != null) {
+            scene.getStylesheets().add(stylesheet.toString());
+        }
+        stage.setTitle("New Appointment");
+        stage.setScene(scene);
+        stage.setMinWidth(1150);
+        stage.setMinHeight(600);
+        stage.show();
     }
 
     @FXML
-    private void onModifyAppt() {
+    private void onModifyAppt() throws IOException {
+        Appointment appointment = apptTable.getSelectionModel().getSelectedItem();
+        if (appointment == null) {
+            String msg = "Please select an appointment";
+            new Alert(Alert.AlertType.ERROR, msg).showAndWait();
+            return;
+        }
+        FXMLLoader loader = new FXMLLoader();
+        URL location = getClass().getResource(
+                resourcePath + "appointment-view.fxml"
+        );
+        loader.setLocation(location);
+        loader.setControllerFactory(param -> new AppointmentViewController(appointment));
+        Parent root = loader.load();
+        AppointmentViewController controller = loader.getController();
+        controller.setAppointmentViewLabelText("Modify Appointment");
+        controller.setAppointmentIdInputText(String.valueOf(appointment.getId()));
+        Scene scene = new Scene(root);
+        if (stylesheet != null) {
+            scene.getStylesheets().add(stylesheet.toString());
+        }
+        stage.setTitle("Modify Appointment");
+        stage.setScene(scene);
+        stage.setMinWidth(1150);
+        stage.setMinHeight(600);
+        stage.show();
     }
 
     @FXML
@@ -425,9 +469,9 @@ public class DashboardController implements Initializable {
         ObservableMap<Integer, Contact> contacts = FXCollections.observableHashMap();
         ObservableMap<Integer, User> users = FXCollections.observableHashMap();
 
-        apptDateCol.setCellFactory(c -> dateTimeCellFactory("yyyy-MM-dd"));
-        apptStartCol.setCellFactory(c -> dateTimeCellFactory("HH:mm a"));
-        apptEndCol.setCellFactory(c -> dateTimeCellFactory("HH:mm a"));
+        apptDateCol.setCellFactory(c -> offsetDateTimeCellFactory("yyyy-MM-dd"));
+        apptStartCol.setCellFactory(c -> offsetDateTimeCellFactory("hh:mm a"));
+        apptEndCol.setCellFactory(c -> offsetDateTimeCellFactory("hh:mm a"));
 
         apptClientCol.setCellFactory(c -> new TableCell<>() {
             @Override
@@ -441,6 +485,7 @@ public class DashboardController implements Initializable {
                 }
             }
         });
+
         apptContactCol.setCellFactory(c -> new TableCell<>() {
             @Override
             protected void updateItem(Integer contactId, boolean empty) {
@@ -489,7 +534,7 @@ public class DashboardController implements Initializable {
     }
 
     //cell factory for start and end columns
-    private <S> TableCell<S, OffsetDateTime> dateTimeCellFactory(String format) {
+    private <S> TableCell<S, OffsetDateTime> offsetDateTimeCellFactory(String format) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
         return new TableCell<>() {
             @Override
@@ -498,7 +543,7 @@ public class DashboardController implements Initializable {
                 if (empty || time == null) {
                     setText(null);
                 } else {
-                    setText(time.format(formatter));
+                    setText(formatter.format(time));
                 }
             }
         };
