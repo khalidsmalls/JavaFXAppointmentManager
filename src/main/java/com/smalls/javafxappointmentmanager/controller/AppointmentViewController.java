@@ -4,10 +4,7 @@ import com.smalls.javafxappointmentmanager.DAO.AppointmentDAO;
 import com.smalls.javafxappointmentmanager.DAO.ClientDAO;
 import com.smalls.javafxappointmentmanager.DAO.ContactDAO;
 import com.smalls.javafxappointmentmanager.DAO.UserDAO;
-import com.smalls.javafxappointmentmanager.model.Appointment;
-import com.smalls.javafxappointmentmanager.model.Client;
-import com.smalls.javafxappointmentmanager.model.Contact;
-import com.smalls.javafxappointmentmanager.model.User;
+import com.smalls.javafxappointmentmanager.model.*;
 import com.smalls.javafxappointmentmanager.utils.AppointmentValidator;
 import com.smalls.javafxappointmentmanager.utils.BusinessHoursGenerator;
 import com.smalls.javafxappointmentmanager.utils.ComboCellFactoryUtil;
@@ -21,6 +18,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import javafx.util.Callback;
+
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.*;
@@ -82,7 +80,8 @@ public class AppointmentViewController implements Initializable {
         return null;
     };
 
-    public AppointmentViewController() {}
+    public AppointmentViewController() {
+    }
 
     public AppointmentViewController(Appointment appointment) {
         this.appointment = appointment;
@@ -117,11 +116,7 @@ public class AppointmentViewController implements Initializable {
         Stage stage = (Stage) saveBtn.getScene().getWindow();
 
         if (validateInputs()) {
-            if (appointment != null) {
-                appointmentId = appointment.getId();
-            } else {
-                appointmentId = -1;
-            }
+            appointmentId = (appointment == null) ? -1 : appointment.getId();
             description = descriptionInput.getText().trim();
             location = locationInput.getText().trim();
             type = typeInput.getText().trim();
@@ -165,34 +160,16 @@ public class AppointmentViewController implements Initializable {
                     contactId
             );
 
-            if (appointmentId == -1) {
-                if (AppointmentValidator.isNotAppointmentConflict(
-                        startOdt.toLocalDateTime(),
-                        endOdt.toLocalDateTime(),
-                        clientId,
-                        appointmentDAO.getAll())
-                ) {
-                    appointmentDAO.save(a);
-                } else {
-                    String msg = "The client is already booked at that time";
-                    new Alert(Alert.AlertType.ERROR, msg).showAndWait();
-                    return;
-                }
-            } else {
-                if (AppointmentValidator.isNotAppointmentConflict(
-                        startOdt.toLocalDateTime(),
-                        endOdt.toLocalDateTime(),
-                        clientId,
-                        appointmentId,
-                        appointmentDAO.getAll())
-                ) {
-                    appointmentDAO.update(appointmentId, a);
+            ObservableMap<Integer, AppointmentDTO> appointmentDTOs = appointmentDAO.getByDate(startOdt.toLocalDate());
 
-                } else {
-                    String msg = "The client is already booked at that time";
-                    new Alert(Alert.AlertType.ERROR, msg).showAndWait();
-                    return;
-                }
+            if (AppointmentValidator.isAppointmentConflict(a, appointmentDTOs)) {
+                String msg = "The client has an appointment conflict at the selected time";
+                new Alert(Alert.AlertType.ERROR, msg).showAndWait();
+                return;
+            } else if (appointmentId == -1) {
+                appointmentDAO.save(a);
+            } else {
+                appointmentDAO.update(appointmentId, a);
             }
 
             clearInputs();

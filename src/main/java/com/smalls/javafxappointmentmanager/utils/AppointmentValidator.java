@@ -1,57 +1,38 @@
 package com.smalls.javafxappointmentmanager.utils;
 
 import com.smalls.javafxappointmentmanager.model.Appointment;
+import com.smalls.javafxappointmentmanager.model.AppointmentDTO;
 import javafx.collections.ObservableMap;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class AppointmentValidator {
 
-    //for a new appointment
-    public static boolean isNotAppointmentConflict(
-            LocalDateTime start,
-            LocalDateTime end,
-            int clientId,
-            ObservableMap<Integer, Appointment> appointments
+    public static boolean isAppointmentConflict(
+            Appointment appointment,
+            ObservableMap<Integer, AppointmentDTO> appointments
     ) {
-        return isNotAppointmentConflict(
-                start,
-                end,
-                clientId,
-                -1,
-                appointments
-        );
-    }
-
-    //for appointment to be modified
-    public static boolean isNotAppointmentConflict(
-            LocalDateTime start,
-            LocalDateTime end,
-            int clientId,
-            int appointmentId,
-            ObservableMap<Integer, Appointment> appointments
-    ) {
-        for (Appointment a : appointments.values()) {
-            if (a.getId() == appointmentId) {
+        for (AppointmentDTO a : appointments.values()) {
+            if (a.getId() == appointment.getId()) {
                 continue; //don't compare appointment to itself
             }
 
-            if (clientId == a.getClientId()) {
-                LocalDateTime aStart = a.getStart().toLocalDateTime();
-                LocalDateTime aEnd = a.getEnd().toLocalDateTime();
-                if (hasConflict(start, end, aStart, aEnd)) {
-                    return false;
+            if (appointment.getClientId() == a.getClientId()) {
+                OffsetDateTime aStart = a.getStart();
+                OffsetDateTime aEnd = a.getEnd();
+                if (hasConflict(appointment.getStart(), appointment.getEnd(), aStart, aEnd)) {
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
     private static boolean hasConflict(
-            LocalDateTime start1,
-            LocalDateTime end1,
-            LocalDateTime start2,
-            LocalDateTime end2
+            OffsetDateTime start1,
+            OffsetDateTime end1,
+            OffsetDateTime start2,
+            OffsetDateTime end2
     ) {
         return (start1.isBefore(end2) || start1.isEqual(end2)) &&
                 (end1.isAfter(start2) || end1.isEqual(start2));

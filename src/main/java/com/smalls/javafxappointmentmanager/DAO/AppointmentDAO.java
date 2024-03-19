@@ -2,6 +2,7 @@ package com.smalls.javafxappointmentmanager.DAO;
 
 import com.smalls.javafxappointmentmanager.MainApplication;
 import com.smalls.javafxappointmentmanager.model.Appointment;
+import com.smalls.javafxappointmentmanager.model.AppointmentDTO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -77,12 +78,31 @@ public class AppointmentDAO {
         return appointments;
     }
 
-    public ObservableMap<Integer, Appointment> getByDate(String date) {
-        ObservableMap<Integer, Appointment> appointments = FXCollections.observableHashMap();
+    public ObservableMap<Integer, AppointmentDTO> getByDate(LocalDate date) {
+        ObservableMap<Integer, AppointmentDTO> appointments = FXCollections.observableHashMap();
         ResultSet resultSet;
-        String query = "SELECT appointment_id, start_time, end_time " +
+        String query = "SELECT appointment_id, client_id, start_time, end_time " +
                 "FROM appointments " +
-                "WHERE start_time::DATE = date::DATE";
+                "WHERE start_time::DATE = ?::DATE";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setObject(1, date);
+            resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("appointment_id");
+                int clientId = resultSet.getInt("client_id");
+                OffsetDateTime start = resultSet.getTimestamp("start_time")
+                        .toInstant()
+                        .atOffset(ZoneOffset.UTC);
+                OffsetDateTime end = resultSet.getTimestamp("end_time")
+                        .toInstant()
+                        .atOffset(ZoneOffset.UTC);
+
+                appointments.put(id, new AppointmentDTO(id, clientId, start, end));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         return appointments;
     }
