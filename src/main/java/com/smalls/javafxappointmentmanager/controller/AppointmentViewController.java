@@ -24,7 +24,6 @@ import javafx.util.Callback;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.*;
-import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.function.UnaryOperator;
 
@@ -167,9 +166,33 @@ public class AppointmentViewController implements Initializable {
             );
 
             if (appointmentId == -1) {
-                appointmentDAO.save(a);
+                if (AppointmentValidator.isNotAppointmentConflict(
+                        startOdt.toLocalDateTime(),
+                        endOdt.toLocalDateTime(),
+                        clientId,
+                        appointmentDAO.getAll())
+                ) {
+                    appointmentDAO.save(a);
+                } else {
+                    String msg = "The client is already booked at that time";
+                    new Alert(Alert.AlertType.ERROR, msg).showAndWait();
+                    return;
+                }
             } else {
-                appointmentDAO.update(appointmentId, a);
+                if (AppointmentValidator.isNotAppointmentConflict(
+                        startOdt.toLocalDateTime(),
+                        endOdt.toLocalDateTime(),
+                        clientId,
+                        appointmentId,
+                        appointmentDAO.getAll())
+                ) {
+                    appointmentDAO.update(appointmentId, a);
+
+                } else {
+                    String msg = "The client is already booked at that time";
+                    new Alert(Alert.AlertType.ERROR, msg).showAndWait();
+                    return;
+                }
             }
 
             clearInputs();

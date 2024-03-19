@@ -234,7 +234,7 @@ public class DashboardController implements Initializable {
     @FXML
     private void onNewClient() throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        URL location =  getClass().getResource(
+        URL location = getClass().getResource(
                 resourcePath + "client-view.fxml"
         );
         loader.setLocation(location);
@@ -300,7 +300,7 @@ public class DashboardController implements Initializable {
     @FXML
     private void onNewAppt() throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        URL location =  getClass().getResource(
+        URL location = getClass().getResource(
                 resourcePath + "appointment-view.fxml"
         );
         loader.setLocation(location);
