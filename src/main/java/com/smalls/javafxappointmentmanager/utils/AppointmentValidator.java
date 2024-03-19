@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 public class AppointmentValidator {
 
     //for a new appointment
-    public static boolean isAppointmentConflict(
+    public static boolean isNotAppointmentConflict(
             LocalDateTime start,
             LocalDateTime end,
             int clientId,
             ObservableMap<Integer, Appointment> appointments
     ) {
-        return isAppointmentConflict(
+        return isNotAppointmentConflict(
                 start,
                 end,
                 clientId,
@@ -24,7 +24,7 @@ public class AppointmentValidator {
     }
 
     //for appointment to be modified
-    public static boolean isAppointmentConflict(
+    public static boolean isNotAppointmentConflict(
             LocalDateTime start,
             LocalDateTime end,
             int clientId,
@@ -40,11 +40,11 @@ public class AppointmentValidator {
                 LocalDateTime aStart = a.getStart().toLocalDateTime();
                 LocalDateTime aEnd = a.getEnd().toLocalDateTime();
                 if (hasConflict(start, end, aStart, aEnd)) {
-                    return true;
+                    return false;
                 }
             }
         }
-        return false;
+        return true;
     }
 
     private static boolean hasConflict(

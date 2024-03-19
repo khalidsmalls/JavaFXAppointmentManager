@@ -77,6 +77,16 @@ public class AppointmentDAO {
         return appointments;
     }
 
+    public ObservableMap<Integer, Appointment> getByDate(String date) {
+        ObservableMap<Integer, Appointment> appointments = FXCollections.observableHashMap();
+        ResultSet resultSet;
+        String query = "SELECT appointment_id, start_time, end_time " +
+                "FROM appointments " +
+                "WHERE start_time::DATE = date::DATE";
+
+        return appointments;
+    }
+
     public void save(Appointment appointment) throws SQLException {
         String description = appointment.getDescription();
         String location = appointment.getLocation();
