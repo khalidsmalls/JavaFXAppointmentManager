@@ -5,7 +5,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
 
-public class ComboCellFactoryUtil {
+public class ComboBoxCellFactoryUtil {
     public static <T>Callback<ListView<T>, ListCell<T>> createCellFactory() {
         return new Callback<>() {
             @Override

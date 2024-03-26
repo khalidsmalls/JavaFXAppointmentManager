@@ -6,7 +6,7 @@ import com.smalls.javafxappointmentmanager.DAO.DivisionDAO;
 import com.smalls.javafxappointmentmanager.model.AdministrativeDivision;
 import com.smalls.javafxappointmentmanager.model.Client;
 import com.smalls.javafxappointmentmanager.model.Country;
-import com.smalls.javafxappointmentmanager.utils.ComboCellFactoryUtil;
+import com.smalls.javafxappointmentmanager.utils.ComboBoxCellFactoryUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -149,8 +149,8 @@ public class ClientViewController implements Initializable {
 
     private void initComboBoxes() throws SQLException {
         countryCombo.setItems(FXCollections.observableArrayList(countries.values()));
-        Callback<ListView<Country>, ListCell<Country>> countryCellFactory = ComboCellFactoryUtil.createCellFactory();
-        Callback<ListView<AdministrativeDivision>, ListCell<AdministrativeDivision>> divisionCellFactory = ComboCellFactoryUtil.createCellFactory();
+        Callback<ListView<Country>, ListCell<Country>> countryCellFactory = ComboBoxCellFactoryUtil.createCellFactory();
+        Callback<ListView<AdministrativeDivision>, ListCell<AdministrativeDivision>> divisionCellFactory = ComboBoxCellFactoryUtil.createCellFactory();
 
         countryCombo.setCellFactory(countryCellFactory);
         countryCombo.setButtonCell(countryCellFactory.call(null));
