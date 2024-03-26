@@ -7,11 +7,14 @@ ALTER TABLE IF EXISTS administrative_divisions DROP CONSTRAINT divisions_fk_coun
 ALTER TABLE IF EXISTS clients DROP CONSTRAINT clients_fk_division;
 
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS contacts;
-DROP TABLE IF EXISTS appointments;
-DROP TABLE IF EXISTS clients;
-DROP TABLE IF EXISTS administrative_divisions;
-DROP TABLE IF EXISTS countries;
+DROP TABLE IF EXISTS contacts CASCADE;
+DROP TABLE IF EXISTS appointments CASCADE;
+DROP TABLE IF EXISTS clients CASCADE;
+DROP TABLE IF EXISTS administrative_divisions CASCADE;
+DROP TABLE IF EXISTS countries CASCADE;
+DROP TABLE IF EXISTS appointment_report;
+DROP TABLE IF EXISTS contact_report;
+DROP VIEW IF EXISTS appointment_report_view;
 
 CREATE TABLE countries (
   country_id SERIAL PRIMARY KEY,
@@ -71,7 +74,7 @@ CREATE TABLE contacts (
 
 CREATE TABLE appointments (
   appointment_id SERIAL PRIMARY KEY,
-  description VARCHAR (50),
+  description VARCHAR (100),
   location VARCHAR (50) NOT NULL,
   appointment_type VARCHAR (50),
   start_time TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -91,19 +94,122 @@ CREATE TABLE appointments (
     REFERENCES contacts (contact_id)
 ); 
 
+CREATE TABLE appointment_report (
+  appointment_id INTEGER,
+  description VARCHAR(100),
+  location VARCHAR(50),
+  appointment_type VARCHAR(50),
+  appointment_date DATE,
+  start_time TIME,
+  end_time TIME,
+  client VARCHAR(50),
+  address VARCHAR(50),
+  postal_code VARCHAR(50),
+  division VARCHAR(50),
+  country VARCHAR(50),
+  phone VARCHAR(15),
+  contact_id INTEGER,
+  contact VARCHAR(50)
+);
+
+CREATE TABLE contact_report(
+  contact_id INTEGER,
+  contact VARCHAR(50),
+  num_appointments INTEGER,
+  total_appointment_hrs NUMERIC(5, 2)
+);
+
+CREATE OR REPLACE FUNCTION calculate_contact_appointment_hours(_contact_id INTEGER)
+  RETURNS NUMERIC(5,2)
+  LANGUAGE PLPGSQL
+AS $$
+DECLARE
+  total_hrs NUMERIC(5,2) := 0;
+BEGIN
+  SELECT
+    SUM(EXTRACT(EPOCH FROM (end_time - start_time)) / 3600) INTO total_hrs
+  FROM appointments
+  WHERE contact_id = _contact_id;
+RETURN total_hrs;
+END; $$;
+
+CREATE VIEW appointment_report_view AS
+  SELECT
+    appointment_id,
+    description,
+    location,
+    appointment_type,
+    start_time::DATE AS date,
+    start_time::TIME,
+    end_time::TIME,
+    client.name AS client,
+    client.address,
+    client.postal_code,
+    div.name AS division,
+    country.name AS country,
+    client.phone,
+    contact.contact_id,
+    contact.name AS contact
+  FROM
+    appointments a
+  JOIN clients client
+    ON a.client_id = client.client_id
+  JOIN administrative_divisions div 
+    ON client.division_id = div.division_id
+  JOIN countries country
+    ON div.country_id = country.country_id
+  JOIN contacts contact 
+    ON a.contact_id = contact.contact_id
+  ORDER BY appointment_id DESC;
+
+CREATE OR REPLACE FUNCTION refresh_contact_report()
+  RETURNS TRIGGER
+  LANGUAGE PLPGSQL
+AS $$
+BEGIN
+  DELETE FROM contact_report;
+  INSERT INTO contact_report(
+    SELECT 
+      contact_id,
+      contact,
+      COUNT(*) AS num_appointments,
+      calculate_contact_appointment_hours(contact_id)
+    FROM appointment_report
+    GROUP BY contact_id, contact
+    ORDER BY contact_id
+  );
+RETURN NEW;
+END; $$;
+
+CREATE OR REPLACE TRIGGER contact_report_trigger
+  AFTER INSERT
+  ON appointment_report
+  FOR EACH STATEMENT
+  EXECUTE PROCEDURE refresh_contact_report();
+
+CREATE OR REPLACE PROCEDURE create_reports()
+LANGUAGE PLPGSQL
+AS $$
+BEGIN
+  DELETE FROM appointment_report;
+  DELETE FROM contact_report;
+  INSERT INTO appointment_report(
+    SELECT * FROM appointment_report_view
+  );
+END; $$;
 
 
 INSERT INTO users VALUES(1, 'user', 'user', NOW(), 'script', NOW(), 'script');
 INSERT INTO users VALUES(2, 'admin', 'admin', NOW(), 'script', NOW(), 'script');
 
 
-INSERT INTO contacts VALUES(1,	'Anika Costa', 'acoasta@company.com');
-INSERT INTO contacts VALUES(2,	'Daniel Garcia',	'dgarcia@company.com');
-INSERT INTO contacts VALUES(3,	'Li Lee',	'llee@company.com');
+INSERT INTO contacts VALUES(1,	'sergio perez', 'sperez@company.com');
+INSERT INTO contacts VALUES(2,	'daniel suarez',	'dsuarez@company.com');
+INSERT INTO contacts VALUES(3,	'patricio o''ward',	'pato@company.com');
 
 
-INSERT INTO countries VALUES(1,	'U.S',	NOW(), 'script', NOW(), 'script');
-INSERT INTO countries VALUES(2,	'UK',	NOW(), 'script', NOW(), 'script');
+INSERT INTO countries VALUES(1,	'United States',	NOW(), 'script', NOW(), 'script');
+INSERT INTO countries VALUES(2,	'United Kingdom',	NOW(), 'script', NOW(), 'script');
 INSERT INTO countries VALUES(3,	'Canada',	NOW(), 'script', NOW(), 'script');
 
 
@@ -180,10 +286,10 @@ INSERT INTO administrative_divisions(name, division_id, create_date, created_by,
 INSERT INTO administrative_divisions(name, division_id, create_date, created_by, last_update, last_updated_by, country_id) VALUES('Northern Ireland', 104, NOW(), 'script', NOW(), 'script', 2 );
 
 
-INSERT INTO clients VALUES(1, 'Daddy Warbucks', '1919 Boardwalk', '01291', '869-908-1875', NOW(), 'script', NOW(), 'script', 29);
-INSERT INTO clients VALUES(2, 'Lady McAnderson', '2 Wonder Way', 'AF19B', '11-445-910-2135', NOW(), 'script', NOW(), 'script', 103);
-INSERT INTO clients VALUES(3, 'Dudley Do-Right', '48 Horse Manor ', '28198', '874-916-2671', NOW(), 'script', NOW(), 'script', 60);
+--INSERT INTO clients VALUES(1, 'Betty Rubble', '345 Cave Stone Rd', '01291', '869-908-1875', NOW(), 'script', NOW(), 'script', 29);
+--INSERT INTO clients VALUES(2, 'Scrappy Doo', '123 Evergreen Ter', 'AF19B', '11-445-910-2135', NOW(), 'script', NOW(), 'script', 103);
+--INSERT INTO clients VALUES(3, 'Hong Kong Phooey', '48 Lotus Manor ', '28198', '874-916-2671', NOW(), 'script', NOW(), 'script', 60);
 
 
-INSERT INTO appointments VALUES(1, 'description', 'location', 'Planning Session', '2020-05-28 12:00:00', '2020-05-28 13:00:00', NOW(), 'script', NOW(), 'script', 1, 1, 3);
-INSERT INTO appointments VALUES(2, 'description', 'location', 'De-Briefing', '2020-05-29 12:00:00', '2020-05-29 13:00:00', NOW(), 'script', NOW(), 'script', 2, 2, 2);
+--INSERT INTO appointments VALUES(1, 'strategy session', 'lounge', 'daily scrum', '2020-05-28 12:00:00', '2020-05-28 13:00:00', NOW(), 'script', NOW(), 'script', 1, 1, 3);
+--INSERT INTO appointments VALUES(2, 'review safety best-practices', 'courtyard', 'Safety-Briefing', '2020-05-29 12:00:00', '2020-05-29 13:00:00', NOW(), 'script', NOW(), 'script', 2, 2, 2);
