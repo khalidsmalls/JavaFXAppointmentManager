@@ -3,6 +3,7 @@ package com.smalls.javafxappointmentmanager.DAO;
 import com.smalls.javafxappointmentmanager.MainApplication;
 import com.smalls.javafxappointmentmanager.model.Appointment;
 import com.smalls.javafxappointmentmanager.model.AppointmentDTO;
+import com.smalls.javafxappointmentmanager.model.AppointmentReportRecord;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -77,6 +78,8 @@ public class AppointmentDAO {
 
         return appointments;
     }
+
+
 
     public ObservableMap<Integer, AppointmentDTO> getByDate(LocalDate date) {
         ObservableMap<Integer, AppointmentDTO> appointments = FXCollections.observableHashMap();
@@ -208,5 +211,67 @@ public class AppointmentDAO {
                 );
             }
         }
+    }
+
+    public ObservableMap<Integer, AppointmentReportRecord> getAppointmentReportRecords() throws SQLException {
+        ObservableMap<Integer, AppointmentReportRecord> records = FXCollections.observableHashMap();
+        ResultSet resultSet;
+        String query = "SELECT appointment_id, " +
+                "description, " +
+                "location, " +
+                "appointment_type, " +
+                "appointment_date, " +
+                "start_time, " +
+                "end_time, " +
+                "client, " +
+                "address, " +
+                "postal_code, " +
+                "division, " +
+                "country, " +
+                "phone, " +
+                "contact_id, " +
+                "contact " +
+                "FROM appointment_report";
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                int appointmentId = resultSet.getInt("appointment_id");
+                LocalDate date = resultSet.getTimestamp("start_time")
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
+                OffsetDateTime start = resultSet.getTimestamp("start_time")
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toOffsetDateTime();
+                OffsetDateTime end = resultSet.getTimestamp("end_time")
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toOffsetDateTime();
+                records.put(
+                        appointmentId,
+                        new AppointmentReportRecord(
+                                appointmentId,
+                                resultSet.getString("description"),
+                                resultSet.getString("location"),
+                                resultSet.getString("appointment_type"),
+                                date,
+                                start,
+                                end,
+                                resultSet.getString("client"),
+                                resultSet.getString("address"),
+                                resultSet.getString("postal_code"),
+                                resultSet.getString("division"),
+                                resultSet.getString("country"),
+                                resultSet.getString("phone"),
+                                resultSet.getInt("contact_id"),
+                                resultSet.getString("contact")
+                        )
+                );
+            }
+        }
+
+        return records;
     }
 }

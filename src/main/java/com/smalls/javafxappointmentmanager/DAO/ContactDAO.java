@@ -2,6 +2,7 @@ package com.smalls.javafxappointmentmanager.DAO;
 
 import com.smalls.javafxappointmentmanager.MainApplication;
 import com.smalls.javafxappointmentmanager.model.Contact;
+import com.smalls.javafxappointmentmanager.model.ContactReportRecord;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -62,9 +63,36 @@ public class ContactDAO {
             resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 String name = resultSet.getString("name");
-                contact= new Contact(id, name);
+                contact = new Contact(id, name);
             }
         }
         return contact;
+    }
+
+    public ObservableMap<Integer, ContactReportRecord> getContactReportRecords() throws SQLException {
+        ObservableMap<Integer, ContactReportRecord> records = FXCollections.observableHashMap();
+        String query = "SELECT contact_id, " +
+                "contact, " +
+                "num_appointments, " +
+                "total_appointment_hrs " +
+                "FROM contact_report";
+        ResultSet resultSet;
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            resultSet = stmt.executeQuery();
+            while (resultSet.next()) {
+                int contactId = resultSet.getInt("contact_id");
+                records.put(
+                        contactId,
+                        new ContactReportRecord(
+                                contactId,
+                                resultSet.getString("contact"),
+                                resultSet.getInt("num_appointments"),
+                                resultSet.getDouble("total_appointment_hrs")
+                        )
+                );
+            }
+        }
+
+        return records;
     }
 }
