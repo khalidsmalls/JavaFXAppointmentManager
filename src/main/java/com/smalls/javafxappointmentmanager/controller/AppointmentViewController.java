@@ -7,7 +7,7 @@ import com.smalls.javafxappointmentmanager.DAO.UserDAO;
 import com.smalls.javafxappointmentmanager.model.*;
 import com.smalls.javafxappointmentmanager.utils.AppointmentValidator;
 import com.smalls.javafxappointmentmanager.utils.BusinessHoursGenerator;
-import com.smalls.javafxappointmentmanager.utils.ComboBoxCellFactoryUtil;
+import com.smalls.javafxappointmentmanager.utils.CellFactoryUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -205,9 +205,9 @@ public class AppointmentViewController implements Initializable {
         startCombo.setItems(businessHours);
         endCombo.setItems(businessHours);
 
-        Callback<ListView<User>, ListCell<User>> userCellFactory = ComboBoxCellFactoryUtil.createCellFactory();
-        Callback<ListView<Client>, ListCell<Client>> clientCellFactory = ComboBoxCellFactoryUtil.createCellFactory();
-        Callback<ListView<Contact>, ListCell<Contact>> contactCellFactory = ComboBoxCellFactoryUtil.createCellFactory();
+        Callback<ListView<User>, ListCell<User>> userCellFactory = CellFactoryUtils.comboBoxCellFactory();
+        Callback<ListView<Client>, ListCell<Client>> clientCellFactory = CellFactoryUtils.comboBoxCellFactory();
+        Callback<ListView<Contact>, ListCell<Contact>> contactCellFactory = CellFactoryUtils.comboBoxCellFactory();
 
         userCombo.setCellFactory(userCellFactory);
         clientCombo.setCellFactory(clientCellFactory);

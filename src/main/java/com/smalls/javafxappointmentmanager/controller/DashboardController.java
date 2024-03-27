@@ -1,7 +1,9 @@
 package com.smalls.javafxappointmentmanager.controller;
 
 import com.smalls.javafxappointmentmanager.DAO.*;
+import com.smalls.javafxappointmentmanager.MainApplication;
 import com.smalls.javafxappointmentmanager.model.*;
+import com.smalls.javafxappointmentmanager.utils.CellFactoryUtils;
 import com.smalls.javafxappointmentmanager.utils.CustomLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -20,9 +22,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
@@ -107,6 +109,8 @@ public class DashboardController implements Initializable {
 
     private AppointmentDAO appointmentDAO;
 
+    private ContactDAO contactDAO;
+
     private final String resourcePath = "/com/smalls/javafxappointmentmanager/view/";
 
     private final URL stylesheet = getClass()
@@ -175,6 +179,7 @@ public class DashboardController implements Initializable {
         clientSearchInput.setTextFormatter(new TextFormatter<>(lengthFilter));
         clientDAO = ClientDAO.getInstance();
         appointmentDAO = AppointmentDAO.getInstance();
+        contactDAO = ContactDAO.getInstance();
         stage = new Stage();
 
         try {
@@ -249,7 +254,7 @@ public class DashboardController implements Initializable {
         }
         stage.setTitle("New Client");
         stage.setScene(scene);
-        stage.setMinWidth(1100);
+        stage.setMinWidth(1250);
         stage.setMinHeight(600);
         stage.show();
     }
@@ -278,7 +283,7 @@ public class DashboardController implements Initializable {
         }
         stage.setTitle("Modify Client");
         stage.setScene(scene);
-        stage.setMinWidth(1100);
+        stage.setMinWidth(1250);
         stage.setMinHeight(600);
         stage.show();
     }
@@ -363,7 +368,34 @@ public class DashboardController implements Initializable {
     }
 
     @FXML
-    private void onViewReports() {
+    private void onViewReports() throws IOException {
+        ObservableMap<Integer, AppointmentReportRecord> appointmentRecords;
+        ObservableMap<Integer, ContactReportRecord> contactRecords;
+
+        try (CallableStatement stmt = MainApplication.getConnection().prepareCall("call create_reports()")) {
+            stmt.execute();
+            appointmentRecords = appointmentDAO.getAppointmentReportRecords();
+            contactRecords = contactDAO.getContactReportRecords();
+            FXMLLoader loader = new FXMLLoader();
+            URL location = getClass().getResource(
+                    resourcePath + "reports-view.fxml"
+            );
+            loader.setLocation(location);
+            loader.setControllerFactory(param -> new ReportsViewController(appointmentRecords, contactRecords));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            if (stylesheet != null) {
+                scene.getStylesheets().add(stylesheet.toString());
+            }
+            stage.setTitle("Reports");
+            stage.setScene(scene);
+            stage.setMinWidth(1100);
+            stage.setMinHeight(700);
+            stage.show();
+        } catch (SQLException e) {
+            String msg = "there was an error retrieving report data";
+            new Alert(Alert.AlertType.ERROR, msg).showAndWait();
+        }
     }
 
     @FXML
@@ -473,14 +505,13 @@ public class DashboardController implements Initializable {
     }
 
     private void setApptTableCellFactories() {
-        ContactDAO contactDAO = ContactDAO.getInstance();
         UserDAO userDAO = UserDAO.getInstance();
         ObservableMap<Integer, Contact> contacts = FXCollections.observableHashMap();
         ObservableMap<Integer, User> users = FXCollections.observableHashMap();
 
-        apptDateCol.setCellFactory(c -> offsetDateTimeCellFactory("yyyy-MM-dd"));
-        apptStartCol.setCellFactory(c -> offsetDateTimeCellFactory("hh:mm a"));
-        apptEndCol.setCellFactory(c -> offsetDateTimeCellFactory("hh:mm a"));
+        apptDateCol.setCellFactory(c -> CellFactoryUtils.offsetDateTimeTableCellFactory("yyyy-MM-dd"));
+        apptStartCol.setCellFactory(c -> CellFactoryUtils.offsetDateTimeTableCellFactory("hh:mm a"));
+        apptEndCol.setCellFactory(c -> CellFactoryUtils.offsetDateTimeTableCellFactory("hh:mm a"));
 
         apptClientCol.setCellFactory(c -> new TableCell<>() {
             @Override
@@ -540,23 +571,6 @@ public class DashboardController implements Initializable {
                 }
             }
         });
-    }
-
-    //cell factory for start and end columns
-    private <S> TableCell<S, OffsetDateTime> offsetDateTimeCellFactory(String format) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
-        return new TableCell<>() {
-            @Override
-            protected void updateItem(OffsetDateTime time, boolean empty) {
-                super.updateItem(time, empty);
-                if (empty || time == null) {
-                    setText(null);
-                } else {
-                    setText(formatter.format(time));
-                }
-            }
-        };
-
     }
 
 }
