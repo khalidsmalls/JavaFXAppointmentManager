@@ -5,15 +5,13 @@ import java.time.OffsetDateTime;
 
 public class AppointmentReportRecord {
 
-    private final int appointmentId;
+    private final int id;
 
     private final String description;
 
     private final String location;
 
     private final String type;
-
-    private final LocalDate date;
 
     private final OffsetDateTime start;
 
@@ -36,11 +34,10 @@ public class AppointmentReportRecord {
     private final String contact;
 
     public AppointmentReportRecord(
-            int appointmentId,
+            int id,
             String description,
             String location,
             String type,
-            LocalDate date,
             OffsetDateTime start,
             OffsetDateTime end,
             String client,
@@ -52,11 +49,10 @@ public class AppointmentReportRecord {
             int contactId,
             String contact
     ) {
-        this.appointmentId = appointmentId;
+        this.id = id;
         this.description = description;
         this.location = location;
         this.type = type;
-        this.date = date;
         this.start = start;
         this.end = end;
         this.client = client;
@@ -69,8 +65,8 @@ public class AppointmentReportRecord {
         this.contact = contact;
     }
 
-    public int getAppointmentId() {
-        return appointmentId;
+    public int getId() {
+        return id;
     }
 
     public String getDescription() {
@@ -83,10 +79,6 @@ public class AppointmentReportRecord {
 
     public String getType() {
         return type;
-    }
-
-    public LocalDate getDate() {
-        return date;
     }
 
     public OffsetDateTime getStart() {
