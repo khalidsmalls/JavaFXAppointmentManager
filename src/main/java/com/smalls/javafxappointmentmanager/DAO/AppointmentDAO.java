@@ -220,7 +220,6 @@ public class AppointmentDAO {
                 "description, " +
                 "location, " +
                 "appointment_type, " +
-                "appointment_date, " +
                 "start_time, " +
                 "end_time, " +
                 "client, " +
@@ -237,10 +236,6 @@ public class AppointmentDAO {
             resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 int appointmentId = resultSet.getInt("appointment_id");
-                LocalDate date = resultSet.getTimestamp("start_time")
-                        .toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate();
                 OffsetDateTime start = resultSet.getTimestamp("start_time")
                         .toInstant()
                         .atZone(ZoneId.systemDefault())
@@ -256,7 +251,6 @@ public class AppointmentDAO {
                                 resultSet.getString("description"),
                                 resultSet.getString("location"),
                                 resultSet.getString("appointment_type"),
-                                date,
                                 start,
                                 end,
                                 resultSet.getString("client"),
