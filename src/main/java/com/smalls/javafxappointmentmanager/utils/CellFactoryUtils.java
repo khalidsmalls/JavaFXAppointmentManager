@@ -3,10 +3,15 @@ package com.smalls.javafxappointmentmanager.utils;
 import com.smalls.javafxappointmentmanager.model.Named;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TableCell;
 import javafx.util.Callback;
 
-public class ComboBoxCellFactoryUtil {
-    public static <T>Callback<ListView<T>, ListCell<T>> createCellFactory() {
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class CellFactoryUtils {
+
+    public static <T>Callback<ListView<T>, ListCell<T>> comboBoxCellFactory() {
         return new Callback<>() {
             @Override
             public ListCell<T> call(ListView<T> tListView) {
@@ -27,5 +32,20 @@ public class ComboBoxCellFactoryUtil {
         } else {
             return null;
         }
+    }
+
+    public static <S> TableCell<S, OffsetDateTime> offsetDateTimeTableCellFactory(String format) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+        return new TableCell<>() {
+            @Override
+            protected void updateItem(OffsetDateTime time, boolean empty) {
+                super.updateItem(time, empty);
+                if (empty || time == null) {
+                    setText(null);
+                } else {
+                    setText(formatter.format(time));
+                }
+            }
+        };
     }
 }
