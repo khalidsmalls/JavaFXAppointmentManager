@@ -99,9 +99,8 @@ CREATE TABLE appointment_report (
   description VARCHAR(100),
   location VARCHAR(50),
   appointment_type VARCHAR(50),
-  appointment_date DATE,
-  start_time TIME,
-  end_time TIME,
+  start_time TIMESTAMPTZ,
+  end_time TIMESTAMPTZ,
   client VARCHAR(50),
   address VARCHAR(50),
   postal_code VARCHAR(50),
@@ -139,9 +138,8 @@ CREATE VIEW appointment_report_view AS
     description,
     location,
     appointment_type,
-    start_time::DATE AS date,
-    start_time::TIME,
-    end_time::TIME,
+    start_time::TIMESTAMPTZ,
+    end_time::TIMESTAMPTZ,
     client.name AS client,
     client.address,
     client.postal_code,
@@ -192,7 +190,6 @@ LANGUAGE PLPGSQL
 AS $$
 BEGIN
   DELETE FROM appointment_report;
-  DELETE FROM contact_report;
   INSERT INTO appointment_report(
     SELECT * FROM appointment_report_view
   );
@@ -203,9 +200,9 @@ INSERT INTO users VALUES(1, 'user', 'user', NOW(), 'script', NOW(), 'script');
 INSERT INTO users VALUES(2, 'admin', 'admin', NOW(), 'script', NOW(), 'script');
 
 
-INSERT INTO contacts VALUES(1,	'sergio perez', 'sperez@company.com');
-INSERT INTO contacts VALUES(2,	'daniel suarez',	'dsuarez@company.com');
-INSERT INTO contacts VALUES(3,	'patricio o''ward',	'pato@company.com');
+INSERT INTO contacts VALUES(1,	'betty rubble', 'brubble@company.com');
+INSERT INTO contacts VALUES(2,	'fred sanford',	'fsanford@company.com');
+INSERT INTO contacts VALUES(3,	'bobby hill',	'bhill@company.com');
 
 
 INSERT INTO countries VALUES(1,	'United States',	NOW(), 'script', NOW(), 'script');
@@ -284,12 +281,3 @@ INSERT INTO administrative_divisions(name, division_id, create_date, created_by,
 INSERT INTO administrative_divisions(name, division_id, create_date, created_by, last_update, last_updated_by, country_id) VALUES('Wales', 102, NOW(), 'script', NOW(), 'script', 2 );
 INSERT INTO administrative_divisions(name, division_id, create_date, created_by, last_update, last_updated_by, country_id) VALUES('Scotland',103, NOW(), 'script', NOW(), 'script', 2 );
 INSERT INTO administrative_divisions(name, division_id, create_date, created_by, last_update, last_updated_by, country_id) VALUES('Northern Ireland', 104, NOW(), 'script', NOW(), 'script', 2 );
-
-
---INSERT INTO clients VALUES(1, 'Betty Rubble', '345 Cave Stone Rd', '01291', '869-908-1875', NOW(), 'script', NOW(), 'script', 29);
---INSERT INTO clients VALUES(2, 'Scrappy Doo', '123 Evergreen Ter', 'AF19B', '11-445-910-2135', NOW(), 'script', NOW(), 'script', 103);
---INSERT INTO clients VALUES(3, 'Hong Kong Phooey', '48 Lotus Manor ', '28198', '874-916-2671', NOW(), 'script', NOW(), 'script', 60);
-
-
---INSERT INTO appointments VALUES(1, 'strategy session', 'lounge', 'daily scrum', '2020-05-28 12:00:00', '2020-05-28 13:00:00', NOW(), 'script', NOW(), 'script', 1, 1, 3);
---INSERT INTO appointments VALUES(2, 'review safety best-practices', 'courtyard', 'Safety-Briefing', '2020-05-29 12:00:00', '2020-05-29 13:00:00', NOW(), 'script', NOW(), 'script', 2, 2, 2);
