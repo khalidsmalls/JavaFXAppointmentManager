@@ -1,18 +1,48 @@
+* {
+   -packaging-paper:  #E7E1D1;
+   -cool-elegance: #BFC8C7;
+   -three-fifty-pm: #516774;
+   -a-touch-of-night: #072638;
+   -set-things-straight: #2B453A;
+}
+
 .root {
-    -fx-background-color: "wheat";
+    -fx-background-color: -cool-elegance;
     -fx-font-family: "Verdana";
 }
 
-.main{}
+.main{
+    -fx-background-color: -packaging-paper;
+}
 
-.main-header{}
+.main-header{
+    -fx-font-size: 3.6em;
+    -fx-text-fill: -three-fifty-pm;
+}
 
-.table-header{}
+.table-header{
+    -fx-font-size: 2em;
+    -fx-text-fill: -three-fifty-pm;
+    -fx-font-style: italic;
+}
 
-.btn{}
+.btn{
+    -fx-padding: 7 9 7 9;
+    -fx-background-color: -three-fifty-pm;
+    -fx-text-fill: -packaging-paper;
+}
 
-.btn-sm{}
+.btn-sm{
+    -fx-text-fill: -packaging-paper;
+    -fx-background-color: -three-fifty-pm;
+}
 
-.input-label{}
+.input-label{
+    -fx-font-size: 1.35em;
+    -fx-text-fill: -a-touch-of-night;
+}
 
-#dateTimeLabel{}
+#dateTimeLabel{
+    -fx-text-fill: -a-touch-of-night;
+    -fx-font-size: 1.25em;
+}

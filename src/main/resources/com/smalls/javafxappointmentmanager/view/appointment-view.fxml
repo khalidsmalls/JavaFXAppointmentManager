@@ -14,13 +14,13 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 
-<AnchorPane fx:id="root" prefHeight="600.0" prefWidth="1175.0" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smalls.javafxappointmentmanager.controller.AppointmentViewController">
+<AnchorPane fx:id="root" prefHeight="600.0" prefWidth="1175.0" styleClass="root" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.smalls.javafxappointmentmanager.controller.AppointmentViewController">
    <children>
-      <BorderPane fx:id="main" layoutX="398.0" layoutY="136.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+      <BorderPane fx:id="main" layoutX="398.0" layoutY="136.0" prefHeight="200.0" prefWidth="200.0" styleClass="main" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <top>
             <StackPane alignment="CENTER_LEFT" prefHeight="97.0" prefWidth="1080.0" BorderPane.alignment="CENTER">
                <children>
-                  <Label fx:id="appointmentViewLabel" />
+                  <Label fx:id="appointmentViewLabel" styleClass="main-header" />
                </children>
                <padding>
                   <Insets left="50.0" />
