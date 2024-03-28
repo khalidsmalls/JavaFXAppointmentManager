@@ -60,7 +60,6 @@ public class MainApplication extends Application {
                     Level.SEVERE,
                     "Database connection error: " + e.getMessage()
             );
-            //TODO why throw e? where you throwing e?
             throw e;
         }
     }
