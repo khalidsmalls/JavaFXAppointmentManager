@@ -12,7 +12,7 @@ displaying number of appointments and total appointment hours
 
 <table>
   <tr>
-    <td style="text-align:center;"><img src="/screenshots/login.png" alt="landing page" width="175" /></td>
+    <td style="display:flex; justify-content:center"><img src="/screenshots/login.png" alt="landing page" width="175" /></td>
     <td><img src="/screenshots/newClient.png" alt="new client page" width="250" /></td>
     <td><img src="/screenshots/modifyClient.png" alt="modify client page" width="250" /></td>
   </tr>
